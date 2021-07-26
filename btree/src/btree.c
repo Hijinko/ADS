@@ -204,7 +204,16 @@ void btree_preorder(btree * p_tree, btnode * p_node, void (* func)(void * data))
  * @param p_tree tree to traverse
  * @param func user defined function to run
  */
-void btree_inorder(btree * p_tree, btnode * p_node, void (* func)(void * data));
+void btree_inorder(btree * p_tree, btnode * p_node, void (* func)(void * data))
+{
+    // do not iterate over a null or empty tree
+    if ((NULL == p_tree) || (0 == p_tree->size) || (NULL == p_node)){
+        return;
+    }
+    btree_inorder(p_tree, p_node->p_left, func);
+    func(p_node);
+    btree_inorder(p_tree, p_node->p_right, func);
+}
 
 // getters
 
