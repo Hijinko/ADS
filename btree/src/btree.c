@@ -34,15 +34,92 @@ typedef struct btree_t {
  *  less than equal and greater than respectively
  */
 btree * btree_init(void * p_data, void (* destroy)(void * data), int8_t (*compare)(void * key1, void * key2));
+
+/*
+ * @brief tears down a binary tree
+ * @param p_tree pointer to binary tree to tear down
+ */
 void * btree_destroy(btree * p_tree);
+
+/*
+ * @brief inserts a new binary tree node into a tree as a left child
+ * @param p_tree tree to insert a new node into
+ * @param p_node parent of the new left node
+ * @param p_data data for the new node
+ * @return 0 on successful insertion -1 on failure
+ */
 int8_t btree_ins_left(btree * p_tree, btnode * p_node, void * p_data);
+
+/*
+ * @brief inserts a new binary tree node into a tree as a right child
+ * @param p_tree tree to insert a new node into
+ * @param p_node parent of the new right node
+ * @param p_data data for the new node
+ * @return 0 on successful insertion -1 on failure
+ */
+
 int8_t btree_ins_right(btree * p_tree, btnode * p_node, void * p_data);
+
+/*
+ * @brief traverses a tree in postorder and runs the provided function on
+ *  All the nodes
+ * @param p_tree tree to traverse
+ * @param func user defined function to run
+ */
 void * btree_postorder(btree * p_tree, void (* func)(void * data));
+
+/*
+ * @brief traverses a tree in preorder and runs the provided function on
+ *  All the nodes
+ * @param p_tree tree to traverse
+ * @param func user defined function to run
+ */
 void * btree_preorder(btree * p_tree, void (* func)(void * data));
+
+/*
+ * @brief traverses a tree in inotorder and runs the provided function on
+ *  All the nodes
+ * @param p_tree tree to traverse
+ * @param func user defined function to run
+ */
 void * btree_inorder(btree * p_tree, void (* func)(void * data));
+
 // getters
+
+/*
+ * @brief gets the number of nodes in a tree
+ * @param  p_tree the tree to get the size from
+ * @return the size of the tree
+ */
 int64_t btree_size(btree * p_tree);
+
+/*
+ * @brief gets the root node of a binary tree 
+ * @param  p_tree the tree to get the root node from
+ * @return pointer to the root node in the tree
+ */
 btnode * btree_root(btree * p_tree);
+
+/*
+ * @brief gets the left child of a node 
+ * @param  p_tree the tree the node belongs to
+ * @param p_node the parent node for the left child
+ * @return pointer to the left child node
+ */
 btnode * btree_left(btree * p_tree, btnode * p_node);
+
+/*
+ * @brief gets the right child of a node 
+ * @param  p_tree the tree the node belongs to
+ * @param p_node the parent node for the right child
+ * @return pointer to the right child node
+ */
 btnode * btree_right(btree * p_tree, btnode * p_node);
+
+/*
+ * @brief gets the data in a node
+ * @param  p_tree  the tree the data belongs to
+ * @param p_node the node the data belongs to
+ * @return pointer to the nodes data
+ */
 void * btree_data(btree * p_tree, btnode * p_node);
