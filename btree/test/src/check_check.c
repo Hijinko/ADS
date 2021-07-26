@@ -9,6 +9,7 @@ int main(void)
     Suite * p_btree = suite_btree();
     // create and add to suite runner
     SRunner * p_srunner = srunner_create(p_btree);
+    srunner_set_fork_status(p_srunner, CK_NOFORK);
     // run all test
     srunner_run_all(p_srunner, CK_NORMAL);
     // save the number of test failed
