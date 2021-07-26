@@ -1,6 +1,7 @@
 #include <btree.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
 
 /*
  * @breif a binary tree node structure
@@ -77,7 +78,7 @@ void btree_destroy(btree * p_tree)
         if (NULL != p_tree->destroy){
             p_tree->destroy(p_tree);
         }
-        btree_rm_left(p_tree, NULL);
+        //btree_rm_left(p_tree, NULL);
         free(p_tree);
     }
 }
@@ -148,14 +149,26 @@ void * btree_inorder(btree * p_tree, void (* func)(void * data));
  * @param  p_tree the tree to get the size from
  * @return the size of the tree
  */
-int64_t btree_size(btree * p_tree);
+int64_t btree_size(btree * p_tree)
+{
+    if (NULL == p_tree){
+        return -1;
+    }
+    return p_tree->size;
+}
 
 /*
  * @brief gets the root node of a binary tree 
  * @param  p_tree the tree to get the root node from
  * @return pointer to the root node in the tree
  */
-btnode * btree_root(btree * p_tree);
+btnode * btree_root(btree * p_tree)
+{
+    if (NULL == p_tree){
+        return NULL;
+    }
+    return p_tree->p_root;
+}
 
 /*
  * @brief gets the left child of a node 
@@ -175,8 +188,13 @@ btnode * btree_right(btree * p_tree, btnode * p_node);
 
 /*
  * @brief gets the data in a node
- * @param  p_tree  the tree the data belongs to
  * @param p_node the node the data belongs to
  * @return pointer to the nodes data
  */
-void * btree_data(btree * p_tree, btnode * p_node);
+void * btree_data(btnode * p_node)
+{
+    if (NULL == p_node){
+        return NULL;
+    }
+    return p_node->p_data;
+}

@@ -1,9 +1,14 @@
 #include <check.h>
+#include <time.h>
 #include <stdlib.h>
 #include <test_btree.h>
 
 int main(void)
 {
+    // seed a random time
+    time_t seed;
+    srand(time(&seed));
+    // variable to hold failed tests
     int num_failed = 0;
     // create the test suites
     Suite * p_btree = suite_btree();
