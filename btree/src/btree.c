@@ -88,7 +88,32 @@ void btree_destroy(btree * p_tree)
  * @param p_node the node to remove the left nodes from
  *  if set to NULL then the entire tree is deleted
  */
-void btree_rm_left(btree * p_tree, btnode * p_node);
+void btree_rm_left(btree * p_tree, btnode * p_node)
+{
+    // do not allow removal from empty tree
+    if ((NULL == p_tree) || (0 == p_tree->size)){
+        return;        
+    }
+    // position will hold the position of the node to delete
+    btnode ** pp_position;
+    // if node is null than the root is being removed
+    if (NULL == p_node){
+        pp_position = &p_tree->p_root;
+    }
+    else {
+        pp_position = &p_node->p_left;
+    }
+    // run user defined function if it exists
+    if (NULL != p_tree->destroy){
+        btree_postorder(p_tree, *pp_position, p_tree->destroy);
+    }
+    else {
+        btree_postorder(p_tree, *pp_position, free);
+    }
+    free(*pp_position);
+    // decrement tree size
+    p_tree->size--;
+}
 
 /*
  * @brief removes the right child of a given tree
@@ -96,7 +121,31 @@ void btree_rm_left(btree * p_tree, btnode * p_node);
  * @param p_node the node to remove the right nodes from
  *  if set to NULL then the entire tree is deleted
  */
-void btree_rm_right(btree * p_tree, btnode * p_node);
+void btree_rm_right(btree * p_tree, btnode * p_node)
+{
+    // do not allow removing from empty tree
+    if ((NULL == p_tree) || (0 == p_tree->size)){
+        return;
+    }
+    btnode ** pp_position;
+    // if node is null than the root is being removed
+    if (NULL == p_node){
+        pp_position = &p_tree->p_root;
+    }
+    else {
+        pp_position = &p_node->p_right;
+    }
+    // run user defined destroy function
+    if (NULL != p_tree->destroy){
+        btree_postorder(p_tree, *pp_position, p_tree->destroy);
+    }
+    else {
+        btree_postorder(p_tree, *pp_position, free);
+    }
+    free(*pp_position);
+    // decrement tree size
+    p_tree->size--;
+}
 
 /*
  * @brief inserts a new binary tree node into a tree as a left child
@@ -126,12 +175,13 @@ int8_t btree_ins_right(btree * p_tree, btnode * p_node, void * p_data);
 void btree_postorder(btree * p_tree, btnode * p_node, void (* func)(void * data))
 {
     // do not iterate over null or empty tree
-    if (!(NULL == p_tree) || !(0 == p_tree->size) || !(NULL == p_node)){
-        // iterate through
-        btree_postorder(p_tree, p_node->p_left, func);
-        btree_postorder(p_tree, p_node->p_right, func);
-        func(p_node);
+    if ((NULL == p_tree) || (0 == p_tree->size) || (NULL == p_node)){
+        return;
     }
+    // iterate through
+    btree_postorder(p_tree, p_node->p_left, func);
+    btree_postorder(p_tree, p_node->p_right, func);
+    func(p_node);
 }
 
 /*
