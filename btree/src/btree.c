@@ -69,7 +69,34 @@ btree * btree_init(void * p_data, void (* destroy)(void * data), int8_t (*compar
  * @brief tears down a binary tree
  * @param p_tree pointer to binary tree to tear down
  */
-void * btree_destroy(btree * p_tree);
+void btree_destroy(btree * p_tree)
+{
+    // do not delete from a NULL or empty tree
+    if (!(NULL == p_tree) && !(0 == p_tree->size)){
+        // run the user defined function if they have one
+        if (NULL != p_tree->destroy){
+            p_tree->destroy(p_tree);
+        }
+        btree_rm_left(p_tree, NULL);
+        free(p_tree);
+    }
+}
+
+/*
+ * @brief removes the left child of a given tree
+ * @param p_tree the tree to remove the child from
+ * @param p_node the node to remove the left nodes from
+ *  if set to NULL then the entire tree is deleted
+ */
+void btree_rm_left(btree * p_tree, btnode * p_node);
+
+/*
+ * @brief removes the right child of a given tree
+ * @param p_tree the tree to remove the child from
+ * @param p_node the node to remove the right nodes from
+ *  if set to NULL then the entire tree is deleted
+ */
+void btree_rm_right(btree * p_tree, btnode * p_node);
 
 /*
  * @brief inserts a new binary tree node into a tree as a left child
