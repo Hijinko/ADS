@@ -151,7 +151,27 @@ void btree_rm_right(btree * p_tree, btnode * p_node)
  * @param p_data data for the new node
  * @return 0 on successful insertion -1 on failure
  */
-btnode *  btree_ins_left(btree * p_tree, btnode * p_node, void * p_data);
+btnode *  btree_ins_left(btree * p_tree, btnode * p_node, void * p_data)
+{
+    // prevent inserting into an null or empty tree
+    // also prevent inserting null data or at the root
+    if ((NULL == p_tree) || (0 == p_tree->size) || (NULL == p_node) || (NULL == p_data)){
+        return NULL;
+    }
+    btree ** pp_position = &p_node->p_left;
+    // allocate the new node
+    btree * p_new_node = calloc(1, sizeof(*p_new_node));
+    if (NULL == p_new_node){
+        return NULL;
+    }
+    // assign values to new node
+    p_new_node->p_data = p_data;
+    p_new_node->p_left = NULL;
+    p_new_node->p_right = NULL;
+    *pp_position = p_new_node;
+    // increase the tree size
+    p_tree_size++;
+}
 
 /*
  * @brief inserts a new binary tree node into a tree as a right child
