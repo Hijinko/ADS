@@ -1,4 +1,5 @@
 #include <btree.h>
+#include <stdlib.h>
 #include <stdint.h>
 
 /*
@@ -20,7 +21,7 @@ typedef struct btree_node_t {
  */
 typedef struct btree_t {
     int64_t size;
-    btnode * p_node;
+    btnode * p_root;
     void (* destroy)(void * p_data);
     int8_t (* compare)(void * key1, void * key2);
 } btree_t;
@@ -32,8 +33,37 @@ typedef struct btree_t {
  * @param compare user defined function to compare nodes
  *  should have a return value of -1, 0, or 1 for 
  *  less than equal and greater than respectively
+ * @return a pointer to a newly malloced tree on success
+ *  NULL on failure
  */
-btree * btree_init(void * p_data, void (* destroy)(void * data), int8_t (*compare)(void * key1, void * key2));
+btree * btree_init(void * p_data, void (* destroy)(void * data), int8_t (*compare)(void * key1, void * key2))
+{
+    // don't allow a new tree with null data to be created
+    if (NULL == p_data){
+        return NULL;
+    }
+    // create tree and test for valid allocation
+    btree * p_tree = calloc(1, sizeof(*p_tree));
+    if (NULL == p_tree){
+        return NULL;
+    }
+    // create the new root node and check for valid allocation
+    btnode * p_node = calloc(1, sizeof(*p_node));
+    if (NULL == p_node){
+        return NULL;
+    }
+    // set the values for the node
+    p_node->p_data = p_data;
+    p_node->p_left = NULL;
+    p_node->p_right = NULL;
+    // set the values for the tree
+    p_tree->size = 1;
+    p_tree->p_root = p_node;
+    p_tree->destroy = destroy;
+    p_tree->compare = compare;
+    // return pointer to the tree
+    return p_tree;
+}
 
 /*
  * @brief tears down a binary tree
