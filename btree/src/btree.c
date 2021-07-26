@@ -10,8 +10,8 @@
  */
 typedef struct btree_node_t {
     void * p_data;
-    struct btree_t * p_left;
-    struct btree_t * p_right;
+    struct btree_node_t * p_left;
+    struct btree_node_t * p_right;
 } btree_node_t;
 
 /*
@@ -123,7 +123,16 @@ int8_t btree_ins_right(btree * p_tree, btnode * p_node, void * p_data);
  * @param p_tree tree to traverse
  * @param func user defined function to run
  */
-void * btree_postorder(btree * p_tree, void (* func)(void * data));
+void btree_postorder(btree * p_tree, btnode * p_node, void (* func)(void * data))
+{
+    // do not iterate over null or empty tree
+    if (!(NULL == p_tree) || !(0 == p_tree->size) || !(NULL == p_node)){
+        // iterate through
+        btree_postorder(p_tree, p_node->p_left, func);
+        btree_postorder(p_tree, p_node->p_right, func);
+        func(p_node);
+    }
+}
 
 /*
  * @brief traverses a tree in preorder and runs the provided function on
@@ -131,7 +140,7 @@ void * btree_postorder(btree * p_tree, void (* func)(void * data));
  * @param p_tree tree to traverse
  * @param func user defined function to run
  */
-void * btree_preorder(btree * p_tree, void (* func)(void * data));
+void btree_preorder(btree * p_tree, btnode * p_node, void (* func)(void * data));
 
 /*
  * @brief traverses a tree in inotorder and runs the provided function on
@@ -139,7 +148,7 @@ void * btree_preorder(btree * p_tree, void (* func)(void * data));
  * @param p_tree tree to traverse
  * @param func user defined function to run
  */
-void * btree_inorder(btree * p_tree, void (* func)(void * data));
+void btree_inorder(btree * p_tree, btnode * p_node, void (* func)(void * data));
 
 // getters
 

@@ -11,9 +11,9 @@ void btree_rm_left(btree * p_tree, btnode * p_node);
 void btree_rm_right(btree * p_tree, btnode * p_node);
 int8_t btree_ins_left(btree * p_tree, btnode * p_node, void * p_data);
 int8_t btree_ins_right(btree * p_tree, btnode * p_node, void * p_data);
-void * btree_postorder(btree * p_tree, void (* func)(void * data));
-void * btree_preorder(btree * p_tree, void (* func)(void * data));
-void * btree_inorder(btree * p_tree, void (* func)(void * data));
+void btree_postorder(btree * p_tree, btnode * p_node, void (* func)(void * data));
+void btree_preorder(btree * p_tree, btnode * p_node, void (* func)(void * data));
+void btree_inorder(btree * p_tree, btnode * p_node, void (* func)(void * data));
 // getters
 int64_t btree_size(btree * p_tree);
 btnode * btree_root(btree * p_tree);
