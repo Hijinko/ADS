@@ -158,9 +158,9 @@ btnode *  btree_ins_left(btree * p_tree, btnode * p_node, void * p_data)
     if ((NULL == p_tree) || (0 == p_tree->size) || (NULL == p_node) || (NULL == p_data)){
         return NULL;
     }
-    btree ** pp_position = &p_node->p_left;
+    btnode ** pp_position = &p_node->p_left;
     // allocate the new node
-    btree * p_new_node = calloc(1, sizeof(*p_new_node));
+    btnode * p_new_node = calloc(1, sizeof(*p_new_node));
     if (NULL == p_new_node){
         return NULL;
     }
@@ -170,7 +170,8 @@ btnode *  btree_ins_left(btree * p_tree, btnode * p_node, void * p_data)
     p_new_node->p_right = NULL;
     *pp_position = p_new_node;
     // increase the tree size
-    p_tree_size++;
+    p_tree->size++;
+    return p_new_node;
 }
 
 /*
@@ -180,8 +181,28 @@ btnode *  btree_ins_left(btree * p_tree, btnode * p_node, void * p_data)
  * @param p_data data for the new node
  * @return 0 on successful insertion -1 on failure
  */
-
-btnode * btree_ins_right(btree * p_tree, btnode * p_node, void * p_data);
+btnode * btree_ins_right(btree * p_tree, btnode * p_node, void * p_data)
+{
+    // check if the tree node or data is NULL
+    // and also do not allow insertion into a tree of size 0
+    if ((NULL == p_tree) || (0 == p_tree->size) || (NULL == p_node) || (NULL == p_data)){
+        return NULL;
+    }
+    btnode ** pp_position = &p_node->p_right;
+    // allocate a new node
+    btnode * p_new_node = calloc(1, sizeof(*p_new_node));
+    if (NULL == p_new_node){
+        return NULL;
+    }
+    // assign values to new node
+    p_new_node->p_data = p_data;
+    p_new_node->p_left = NULL;
+    p_new_node->p_right = NULL;
+    *pp_position = p_new_node;
+    // increase the tree size
+    p_tree->size++;
+    return p_new_node;
+}
 
 /*
  * @brief traverses a tree in postorder and runs the provided function on
