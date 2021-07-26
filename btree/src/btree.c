@@ -151,7 +151,7 @@ void btree_rm_right(btree * p_tree, btnode * p_node)
  * @param p_data data for the new node
  * @return 0 on successful insertion -1 on failure
  */
-int8_t btree_ins_left(btree * p_tree, btnode * p_node, void * p_data);
+btnode *  btree_ins_left(btree * p_tree, btnode * p_node, void * p_data);
 
 /*
  * @brief inserts a new binary tree node into a tree as a right child
@@ -161,7 +161,7 @@ int8_t btree_ins_left(btree * p_tree, btnode * p_node, void * p_data);
  * @return 0 on successful insertion -1 on failure
  */
 
-int8_t btree_ins_right(btree * p_tree, btnode * p_node, void * p_data);
+btnode * btree_ins_right(btree * p_tree, btnode * p_node, void * p_data);
 
 /*
  * @brief traverses a tree in postorder and runs the provided function on
@@ -220,16 +220,31 @@ void btree_inorder(btree * p_tree, btnode * p_node, void (* func)(void * data))
 /*
  * @brief gets the number of nodes in a tree
  * @param  p_tree the tree to get the size from
- * @return the size of the tree
+ * @return the size of the tree or -1 on error
  */
-int64_t btree_size(btree * p_tree);
+int64_t btree_size(btree * p_tree)
+{
+    // ensure the tree is not null
+    if (NULL == p_tree){
+        return -1;
+    }
+    return p_tree->size;
+}
 
 /*
  * @brief gets the root node of a binary tree 
  * @param  p_tree the tree to get the root node from
  * @return pointer to the root node in the tree
  */
-btnode * btree_root(btree * p_tree);
+btnode * btree_root(btree * p_tree)
+{
+    // ensure the tree is not null
+    if (NULL == p_tree){
+        return NULL;
+    }
+    return p_tree->p_root;
+
+}
 
 /*
  * @brief gets the left child of a node 
@@ -237,7 +252,14 @@ btnode * btree_root(btree * p_tree);
  * @param p_node the parent node for the left child
  * @return pointer to the left child node
  */
-btnode * btree_left(btree * p_tree, btnode * p_node);
+btnode * btree_left(btree * p_tree, btnode * p_node)
+{
+    // ensure the tree is not null
+    if ((NULL == p_tree) || (NULL == p_node)){
+        return NULL;
+    }
+    return p_node->p_left;
+}
 
 /*
  * @brief gets the right child of a node 
@@ -245,7 +267,14 @@ btnode * btree_left(btree * p_tree, btnode * p_node);
  * @param p_node the parent node for the right child
  * @return pointer to the right child node
  */
-btnode * btree_right(btree * p_tree, btnode * p_node);
+btnode * btree_right(btree * p_tree, btnode * p_node)
+{
+    // ensure the tree is not null
+    if ((NULL == p_tree) || (NULL == p_node)){
+        return NULL;
+    }
+    return p_node->p_right;
+}
 
 /*
  * @brief gets the data in a node
@@ -253,4 +282,11 @@ btnode * btree_right(btree * p_tree, btnode * p_node);
  * @param p_node the node the data belongs to
  * @return pointer to the nodes data
  */
-void * btree_data(btree * p_tree, btnode * p_node);
+void * btree_data(btree * p_tree, btnode * p_node)
+{
+    // ensure the tree is not null
+    if ((NULL == p_tree) || (NULL == p_node)){
+        return NULL;
+    }
+    return p_node->p_data;
+}
