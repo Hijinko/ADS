@@ -72,14 +72,11 @@ btree * btree_init(void * p_data, void (* destroy)(void * data), int8_t (*compar
 void btree_destroy(btree * p_tree)
 {
     // do not delete from a NULL or empty tree
-    if (!(NULL == p_tree) && !(0 == p_tree->size)){
-        // run the user defined function if they have one
-        if (NULL != p_tree->destroy){
-            p_tree->destroy(p_tree);
-        }
-        btree_rm_left(p_tree, NULL);
-        free(p_tree);
+    if ((NULL == p_tree) || (0 == p_tree->size)){
+        return;
     }
+    btree_rm_left(p_tree, NULL);
+    free(p_tree);
 }
 
 /*
@@ -190,7 +187,16 @@ void btree_postorder(btree * p_tree, btnode * p_node, void (* func)(void * data)
  * @param p_tree tree to traverse
  * @param func user defined function to run
  */
-void btree_preorder(btree * p_tree, btnode * p_node, void (* func)(void * data));
+void btree_preorder(btree * p_tree, btnode * p_node, void (* func)(void * data))
+{
+    // do not iterate over a null or empty tree
+    if ((NULL == p_tree) || (0 == p_tree->size) || (NULL == p_node)){
+        return;
+    }
+    func(p_node);
+    btree_preorder(p_tree, p_node->p_left, func);
+    btree_preorder(p_tree, p_node->p_right, func);
+}
 
 /*
  * @brief traverses a tree in inotorder and runs the provided function on
