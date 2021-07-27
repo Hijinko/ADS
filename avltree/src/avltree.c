@@ -5,10 +5,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-//typedef struct btree avltree_t;
+/*
+ * @brief avltree node structure
+ * @param p_data data for the node
+ * @param b_hidden bool value to note if node should be hidden or not
+ * @factor the balance factor of the node
+ */
 typedef struct avltree_node {
     void * p_data;
-    bool hidden;
+    bool b_hidden;
     int factor;
 } avltree_node;
 
@@ -31,7 +36,7 @@ avltree * avltree_init(void * p_data, void (* destroy)(void * p_data), int8_t (*
         return NULL;
     }
     p_root->p_data = p_data;
-    p_root->hidden = false;
+    p_root->b_hidden = false;
     p_root->factor = BALANCED;
     // create the avltree and return
     avltree * p_tree = btree_init(p_root, destroy, compare);
@@ -40,8 +45,14 @@ avltree * avltree_init(void * p_data, void (* destroy)(void * p_data), int8_t (*
     } 
     return p_tree;
 }
+
+/*
+ * @brief tears down an avltree
+ * @param p_tree avltree to tear down
+ */
 void avltree_destroy(avltree * p_tree)
 {
+    // only tear down if p_tree is not null
     if (NULL != p_tree){
         btree_destroy(p_tree);
     }
