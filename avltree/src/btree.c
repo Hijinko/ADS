@@ -336,3 +336,27 @@ void * btree_data(btree * p_tree, btnode * p_node)
     }
     return p_node->p_data;
 }
+
+/*
+ * @brief determines if the node is at the end of a branch
+ * @param p_node node to evaluate
+ * @return true if node is end of branch else false
+ */
+bool btree_is_eob(btnode * p_node)
+{
+    return (NULL == p_node);
+}
+
+/*
+ * @brief determines if the node is a leaf node
+ * @param p_node node to evaluate
+ * @return true if node is a leaf node else false
+ */
+bool btree_is_leaf(btnode * p_node)
+{
+    // if p_node is null then it is not a leaf
+    if (NULL == p_node){
+        return false;
+    }
+    return ((NULL == p_node->p_left) && (NULL == p_node->p_right));
+}

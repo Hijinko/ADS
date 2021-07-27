@@ -1,7 +1,7 @@
 #ifndef _BTREE_H
 #define _BTREE_H
 #include <stdint.h>
-
+#include <stdbool.h>
 typedef struct btree_node_t btnode;
 typedef struct btree_t btree;
 
@@ -19,5 +19,7 @@ int64_t btree_size(btree * p_tree);
 btnode * btree_root(btree * p_tree);
 btnode * btree_left(btree * p_tree, btnode * p_node);
 btnode * btree_right(btree * p_tree, btnode * p_node);
+bool btree_is_eob(btnode * p_node);
+bool btree_is_leaf(btnode * p_node);
 void * btree_data(btree * p_tree, btnode * p_node);
 #endif
