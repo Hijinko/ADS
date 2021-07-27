@@ -34,3 +34,5 @@ debug: CMD += -g
 debug: clean all
 check: CMD += -I $(TSTINC)
 check: debug $(TST)check_check
+valgrind: debug
+	valgrind --leak-check=full ./test/check_check

@@ -1,6 +1,7 @@
 #include <btree.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
 
 /*
  * @breif a binary tree node structure
@@ -58,7 +59,8 @@ btree * btree_init(void * p_data, void (* destroy)(void * data), int8_t (*compar
     p_node->p_right = NULL;
     // set the values for the tree
     p_tree->size = 1;
-    p_tree->p_root = p_node;
+    btnode ** pp_position = &p_tree->p_root;
+    *pp_position = p_node;
     p_tree->destroy = destroy;
     p_tree->compare = compare;
     // return pointer to the tree
@@ -72,7 +74,7 @@ btree * btree_init(void * p_data, void (* destroy)(void * data), int8_t (*compar
 void btree_destroy(btree * p_tree)
 {
     // do not delete from a NULL or empty tree
-    if ((NULL == p_tree) || (0 == p_tree->size)){
+    if (NULL == p_tree){
         return;
     }
     btree_rm_left(p_tree, NULL);
@@ -100,16 +102,19 @@ void btree_rm_left(btree * p_tree, btnode * p_node)
     else {
         pp_position = &p_node->p_left;
     }
-    // run user defined function if it exists
-    if (NULL != p_tree->destroy){
-        btree_postorder(p_tree, *pp_position, p_tree->destroy);
+
+    if (NULL != *pp_position){
+        btree_rm_left(p_tree, *pp_position);
+        btree_rm_right(p_tree, *pp_position);
+        // run user defined function if it exists
+        if (NULL != p_tree->destroy){
+            p_tree->destroy((*pp_position)->p_data);
+        }
+        // decrement tree size
+        free(*pp_position);
+        *pp_position = NULL;
+        p_tree->size--;
     }
-    else {
-        btree_postorder(p_tree, *pp_position, free);
-    }
-    //free(*pp_position);
-    // decrement tree size
-    p_tree->size--;
 }
 
 /*
@@ -132,16 +137,16 @@ void btree_rm_right(btree * p_tree, btnode * p_node)
     else {
         pp_position = &p_node->p_right;
     }
-    // run user defined destroy function
-    if (NULL != p_tree->destroy){
-        btree_postorder(p_tree, *pp_position, p_tree->destroy);
+    if (NULL != *pp_position){
+        btree_rm_left(p_tree, *pp_position);
+        btree_rm_right(p_tree, *pp_position);
+        if (NULL != p_tree->destroy){
+            p_tree->destroy((*pp_position)->p_data);
+        }
+        free(*pp_position);
+        *pp_position = NULL;
+        p_tree->size--;
     }
-    else {
-        btree_postorder(p_tree, *pp_position, free);
-    }
-    //free(*pp_position);
-    // decrement tree size
-    p_tree->size--;
 }
 
 /*
@@ -155,7 +160,7 @@ btnode *  btree_ins_left(btree * p_tree, btnode * p_node, void * p_data)
 {
     // prevent inserting into an null or empty tree
     // also prevent inserting null data or at the root
-    if ((NULL == p_tree) || (0 == p_tree->size) || (NULL == p_node) || (NULL == p_data)){
+    if ((NULL == p_tree) || (0 == p_tree->size) || (NULL == p_node)){
         return NULL;
     }
     btnode ** pp_position = &p_node->p_left;
