@@ -2,10 +2,11 @@
 #define _AVL_TREE_H
 #include <btree.h>
 #include <stdint.h>
-typedef struct avltree_t avltree;
+//typedef struct avltree_t avltree;
+typedef struct btree_t avltree;
 typedef struct avltree_node avlnode;
 
-avltree * avltree_init(void * p_data, void (* destroy)(void * p_data), int (* compare)(void * key1, void * key2));
+avltree * avltree_init(void * p_data, void (* destroy)(void * p_data), int8_t (* compare)(void * key1, void * key2));
 void avltree_destroy(avltree * p_tree);
 avlnode * avltree_insert(avltree * p_tree, void * p_data);
 int8_t avltree_remove(avltree * p_tree, void * p_data);

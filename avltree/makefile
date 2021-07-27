@@ -9,12 +9,14 @@ TSTBIN = ./test/bin/
 TSTINC = ./test/include
 LNK = -lcheck -lm -lpthread -lrt -lsubunit
 
-all: $(BIN)libavltree.a check
+all: $(BIN)libavltree.a
 
 ################
 # main targets #
 ################
 $(BIN)avltree.o: $(SRC)avltree.c $(INC)avltree.h
+	$(CMD) -c $< -o $@
+$(BIN)btree.o: $(SRC)btree.c $(INC)btree.h
 	$(CMD) -c $< -o $@
 
 ################
@@ -24,14 +26,14 @@ $(TST)check_check: $(TSTBIN)check_check.o $(TSTBIN)libtestavltree.a
 	$(CMD) $^ $(LNK) -o $@
 $(TSTBIN)check_check.o: $(TSTSRC)check_check.c
 	$(CMD) -c $^ -o $@
-$(TSTBIN)test_avltree.o: $(TSTSRC)test_alvtree.c
+$(TSTBIN)test_avltree.o: $(TSTSRC)test_avltree.c
 	$(CMD) -c $^ -o $@ 
 
 ####################
 # libarary targets #
 ####################
-$(BIN)libavltree.a: $(BIN)libavltree.a($(BIN)avltree.o);
-$(TSTBIN)libtestavltree.a: $(TSTBIN)libtestavltree.a($(TSTBIN)test_avltree.o $(BIN)avltree.o);
+$(BIN)libavltree.a: $(BIN)libavltree.a($(BIN)avltree.o $(BIN)btree.o);
+$(TSTBIN)libtestavltree.a: $(TSTBIN)libtestavltree.a($(TSTBIN)test_avltree.o $(BIN)avltree.o $(BIN)btree.o);
 clean:
 	find . -type f -iname *.o -exec rm -rf {} \;
 	find . -type f -iname *.a -exec rm -rf {} \;

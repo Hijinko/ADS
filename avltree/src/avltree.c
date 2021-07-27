@@ -2,8 +2,10 @@
 #include <btree.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-typedef struct btree avltree_t;
+//typedef struct btree avltree_t;
 typedef struct avltree_node {
     void * p_data;
     bool hidden;
@@ -17,14 +19,14 @@ typedef struct avltree_node {
  * @param compare user defined function to compare the data in the tree
  * @return a pointer to the newly created avltree
  */
-avltree * avltree_init(void * p_data, void (* destroy)(void * p_data), int (* compare)(void * key1, void * key2))
+avltree * avltree_init(void * p_data, void (* destroy)(void * p_data), int8_t (* compare)(void * key1, void * key2))
 {
     // do not allow creating a tree without a data for its root node
     if (NULL == p_data){
-        return;
+        return NULL;
     }
     // create the root node
-    avlnode * p_root = calloc(1, sizeof(*avlnode));
+    avlnode * p_root = calloc(1, sizeof(*p_root));
     if (NULL == p_root){
         return NULL;
     }
@@ -33,12 +35,18 @@ avltree * avltree_init(void * p_data, void (* destroy)(void * p_data), int (* co
     p_root->factor = BALANCED;
     // create the avltree and return
     avltree * p_tree = btree_init(p_root, destroy, compare);
-    if (NULL == avltree){
+    if (NULL == p_tree){
         return NULL;
     } 
-    return avltree;
+    return p_tree;
 }
-void avltree_destroy(avltree * p_tree);
+void avltree_destroy(avltree * p_tree)
+{
+    if (NULL != p_tree){
+        btree_destroy(p_tree);
+    }
+}
+
 avltree_node * avltree_insert(avltree * p_tree, void * p_data);
 int8_t avltree_remove(avltree * p_tree, void * p_data);
 avltree_node * avltree_find(avltree * p_tree, void * p_data);
