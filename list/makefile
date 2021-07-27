@@ -33,6 +33,6 @@ clean:
 debug: CMD += -g
 debug: clean all
 check: CMD += -I $(TSTINC)
-check: debug $(TST)check_check
-valgrind: debug
-	valgrind --leak-check=full ./test/check_check
+check: $(TST)check_check
+valgrind: debug check
+	valgrind --leak-check=full --show-leak-kinds=all ./test/check_check

@@ -37,9 +37,6 @@ list * list_init(void (* destroy)(void * data), int (* compare)(void * key1, voi
 void list_destroy(list * p_list_t)
 {
     while(p_list_t->size > 0){
-        if (NULL != p_list_t->destroy){
-            p_list_t->destroy(p_list_t->p_head);
-        }
         list_rm_next(p_list_t, NULL);
     }
     free(p_list_t);
@@ -84,7 +81,6 @@ list_elem * list_ins_next(list * p_list_t, list_elem * p_elem_t, void * p_data)
     if (p_list_t->p_tail == p_elem_t){
         p_list_t->p_tail = p_new_t;
     }
-
     // update size
     p_list_t->size++;
     // return element
@@ -99,31 +95,31 @@ list_elem * list_ins_next(list * p_list_t, list_elem * p_elem_t, void * p_data)
  */
 int8_t list_rm_next(list * p_list_t, list_elem * p_elem_t)
 {
-    // check if removing from invalid list or element
+    // ensure list is not null or empty
     if ((NULL == p_list_t) || (0 == p_list_t->size)){
         return -1;
     }
-   
-    list_elem * p_old_t;
-
-    // check if removing the head
+    // check if removing form the head or somewhere else
+    list_elem * p_old = NULL;
     if (NULL == p_elem_t){
-        p_old_t = p_list_t->p_head;
-        p_list_t->p_head = p_old_t->p_next;
+        p_old = p_list_t->p_head;    
+        p_list_t->p_head = p_old->p_next;
     }
     else {
-    // remove from anywhere else
-    p_old_t = p_elem_t->p_next;
-    p_elem_t->p_next = p_old_t->p_next;
+        p_old = p_elem_t->p_next;
+        p_elem_t->p_next = p_old->p_next;
     }
-
     // check if there is a new tail
-    if (NULL == p_old_t->p_next){
-        p_list_t->p_tail = p_elem_t; 
+    if (p_list_t->p_tail == p_old){
+        p_list_t->p_tail = p_elem_t;
     }
-
-    free(p_old_t);
-    // update list size
+    // free any user defined data if a destroy function was specified
+    if (NULL != p_list_t->destroy){
+        p_list_t->destroy(p_old->p_data);
+    }
+    // free the old element
+    free(p_old);
+    // decrease list size
     p_list_t->size--;
     return 0;
 }

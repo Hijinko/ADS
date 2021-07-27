@@ -11,17 +11,28 @@ static list_elem * p_elem2 = NULL;
 static list_elem * p_elem3 = NULL;
 static list_elem * p_elem4 = NULL;
 
+static void test_free(void * data)
+{
+    free((char *)data); 
+}
+
+static int test_search(void * key1, void * key2)
+{
+    int match = strcmp((char *)key1, (char *)key2);
+    return match;
+}
+
 static void start_list(void)
 {
-    p_list = list_init(free, NULL); 
+    p_list = list_init(test_free, test_search); 
     char * p_name1 = calloc(20, sizeof(*p_name1));
     char * p_name2 = calloc(20, sizeof(*p_name2));
     char * p_name3 = calloc(20, sizeof(*p_name3));
     char * p_name4 = calloc(20, sizeof(*p_name4));
-    p_name1 = "Kevin";
-    p_name2 = "Joe";
-    p_name3 = "James";
-    p_name4 = "Dave";
+    strncpy(p_name1, "Kevin", strlen("Kevin") + 1);
+    strncpy(p_name2, "Joe", strlen("Joe") + 1);
+    strncpy(p_name3, "James", strlen("James") + 1);
+    strncpy(p_name4, "Dave", strlen("Dave") + 1);
     p_elem1 = list_ins_next(p_list, NULL, p_name1);
     p_elem2 = list_ins_next(p_list, NULL, p_name2);
     p_elem3 = list_ins_next(p_list, NULL, p_name3);
@@ -31,12 +42,6 @@ static void start_list(void)
 static void teardown_list(void)
 {
     list_destroy(p_list);
-}
-
-static int test_search(void * key1, void * key2)
-{
-    int match = strcmp((char *)key1, (char *)key2);
-    return match;
 }
 
 START_TEST(test_list_init)
