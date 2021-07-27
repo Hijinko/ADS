@@ -9,7 +9,7 @@ TSTBIN = ./test/bin/
 TSTINC = ./test/include
 LNK = -lcheck -lm -lpthread -lrt -lsubunit
 
-all: $(BIN)libadt.a
+all: $(BIN)libadt.a check
 
 # main targets
 $(BIN)btree.o: $(SRC)btree.c $(INC)btree.h

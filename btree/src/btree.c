@@ -107,7 +107,7 @@ void btree_rm_left(btree * p_tree, btnode * p_node)
     else {
         btree_postorder(p_tree, *pp_position, free);
     }
-    free(*pp_position);
+    //free(*pp_position);
     // decrement tree size
     p_tree->size--;
 }
@@ -139,7 +139,7 @@ void btree_rm_right(btree * p_tree, btnode * p_node)
     else {
         btree_postorder(p_tree, *pp_position, free);
     }
-    free(*pp_position);
+    //free(*pp_position);
     // decrement tree size
     p_tree->size--;
 }
