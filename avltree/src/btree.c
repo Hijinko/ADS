@@ -74,22 +74,13 @@ btree * btree_init(void * p_data, void (* destroy)(void * data), int8_t (*compar
 void btree_destroy(btree * p_tree)
 {
     // do not delete from a NULL or empty tree
-<<<<<<< HEAD
-    if (!(NULL == p_tree) && !(0 == p_tree->size)){
-        // run the user defined function if they have one
-        if (NULL != p_tree->destroy){
-            p_tree->destroy(p_tree);
-        }
-        //btree_rm_left(p_tree, NULL);
-        free(p_tree);
-=======
     if (NULL == p_tree){
         return;
->>>>>>> main
     }
     btree_rm_left(p_tree, NULL);
     free(p_tree);
 }
+
 
 /*
  * @brief removes the left child of a given tree
@@ -271,6 +262,15 @@ void btree_inorder(btree * p_tree, btnode * p_node, void (* func)(void * data))
     btree_inorder(p_tree, p_node->p_right, func);
 }
 
+int8_t btree_compare(btree * p_tree, void * key1, void * key2)
+{
+    // ensure nor tree or tree->compare is null
+    if ((NULL == p_tree) || (NULL == p_tree->compare)){
+        return -2;
+    }
+    return p_tree->compare(key1, key2);
+}
+
 // getters
 
 /*
@@ -280,10 +280,7 @@ void btree_inorder(btree * p_tree, btnode * p_node, void (* func)(void * data))
  */
 int64_t btree_size(btree * p_tree)
 {
-<<<<<<< HEAD
-=======
     // ensure the tree is not null
->>>>>>> main
     if (NULL == p_tree){
         return -1;
     }
@@ -297,30 +294,23 @@ int64_t btree_size(btree * p_tree)
  */
 btnode * btree_root(btree * p_tree)
 {
-<<<<<<< HEAD
-=======
     // ensure the tree is not null
->>>>>>> main
     if (NULL == p_tree){
         return NULL;
     }
     return p_tree->p_root;
-<<<<<<< HEAD
-=======
 
->>>>>>> main
 }
 
 /*
  * @brief gets the left child of a node 
- * @param  p_tree the tree the node belongs to
  * @param p_node the parent node for the left child
  * @return pointer to the left child node
  */
-btnode * btree_left(btree * p_tree, btnode * p_node)
+btnode * btree_left(btnode * p_node)
 {
-    // ensure the tree is not null
-    if ((NULL == p_tree) || (NULL == p_node)){
+    // ensure the node is not null
+    if (NULL == p_node){
         return NULL;
     }
     return p_node->p_left;
@@ -328,14 +318,13 @@ btnode * btree_left(btree * p_tree, btnode * p_node)
 
 /*
  * @brief gets the right child of a node 
- * @param  p_tree the tree the node belongs to
  * @param p_node the parent node for the right child
  * @return pointer to the right child node
  */
-btnode * btree_right(btree * p_tree, btnode * p_node)
+btnode * btree_right(btnode * p_node)
 {
-    // ensure the tree is not null
-    if ((NULL == p_tree) || (NULL == p_node)){
+    // ensure the node is not null
+    if (NULL == p_node){
         return NULL;
     }
     return p_node->p_right;
@@ -346,17 +335,64 @@ btnode * btree_right(btree * p_tree, btnode * p_node)
  * @param p_node the node the data belongs to
  * @return pointer to the nodes data
  */
-<<<<<<< HEAD
 void * btree_data(btnode * p_node)
 {
+    // ensure the node is not null
     if (NULL == p_node){
-=======
-void * btree_data(btree * p_tree, btnode * p_node)
-{
-    // ensure the tree is not null
-    if ((NULL == p_tree) || (NULL == p_node)){
->>>>>>> main
         return NULL;
     }
     return p_node->p_data;
+}
+
+/*
+ * @brief determines if the node is at the end of a branch
+ * @param p_node node to evaluate
+ * @return true if node is end of branch else false
+ */
+bool btree_is_eob(btnode * p_node)
+{
+    return (NULL == p_node);
+}
+
+/*
+ * @brief determines if the node is a leaf node
+ * @param p_node node to evaluate
+ * @return true if node is a leaf node else false
+ */
+bool btree_is_leaf(btnode * p_node)
+{
+    // if p_node is null then it is not a leaf
+    if (NULL == p_node){
+        return false;
+    }
+    return ((NULL == p_node->p_left) && (NULL == p_node->p_right));
+}
+
+// setters
+
+void btree_set_left(btnode * p_parent, btnode * p_child)
+{
+    // ensure neither node is null
+    if ((NULL == p_parent) || (NULL == p_child)){
+        return;
+    }
+    p_parent->p_left = p_child;
+}
+
+void btree_set_right(btnode * p_parent, btnode * p_child)
+{
+    // ensure neither node is null
+    if ((NULL == p_parent) || (NULL == p_child)){
+        return;
+    }
+    p_parent->p_left = p_child;
+}
+
+void btree_size_decrease(btree * p_tree)
+{
+    // do not decrease a null or empty tree
+    if ((NULL == p_tree) || (0 == p_tree->size)){
+        return;
+    }
+    p_tree->size--; 
 }

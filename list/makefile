@@ -9,23 +9,23 @@ TSTBIN = ./test/bin/
 TSTINC = ./test/include
 LNK = -lcheck -lm -lpthread -lrt -lsubunit
 
-all: $(BIN)libadt.a check
+all: $(BIN)liblist.a check
 
 # main targets
-$(BIN)btree.o: $(SRC)btree.c $(INC)btree.h
+$(BIN)list.o: $(SRC)list.c $(INC)list.h
 	$(CMD) -c $< -o $@
 
 # test targets
-$(TST)check_check: $(TSTBIN)check_check.o $(TSTBIN)libtestadt.a
+$(TST)check_check: $(TSTBIN)check_check.o $(TSTBIN)libtestlist.a
 	$(CMD) $^ $(LNK) -o $@
 $(TSTBIN)check_check.o: $(TSTSRC)check_check.c
 	$(CMD) -c $^ -o $@
-$(TSTBIN)test_btree.o: $(TSTSRC)test_btree.c
+$(TSTBIN)test_list.o: $(TSTSRC)test_list.c
 	$(CMD) -c $^ -o $@ 
 
 # libarary targets
-$(BIN)libadt.a: $(BIN)libadt.a($(BIN)btree.o);
-$(TSTBIN)libtestadt.a: $(TSTBIN)libtestadt.a($(TSTBIN)test_btree.o $(BIN)btree.o);
+$(BIN)liblist.a: $(BIN)liblist.a($(BIN)list.o);
+$(TSTBIN)libtestlist.a: $(TSTBIN)libtestlist.a($(TSTBIN)test_list.o $(BIN)list.o);
 clean:
 	find . -type f -iname *.o -exec rm -rf {} \;
 	find . -type f -iname *.a -exec rm -rf {} \;
@@ -33,6 +33,6 @@ clean:
 debug: CMD += -g
 debug: clean all
 check: CMD += -I $(TSTINC)
-check: debug $(TST)check_check
-valgrind: debug
-	valgrind --leak-check=full ./test/check_check
+check: $(TST)check_check
+valgrind: debug check
+	valgrind --leak-check=full --show-leak-kinds=all ./test/check_check
