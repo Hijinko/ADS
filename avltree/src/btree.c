@@ -261,6 +261,15 @@ void btree_inorder(btree * p_tree, btnode * p_node, void (* func)(void * data))
     btree_inorder(p_tree, p_node->p_right, func);
 }
 
+int8_t btree_compare(btree * p_tree, void * key1, void * key2)
+{
+    // ensure nor tree or tree->compare is null
+    if ((NULL == p_tree) || (NULL == p_tree->compare)){
+        return -2;
+    }
+    return p_tree->compare(key1, key2);
+}
+
 // getters
 
 /*
@@ -378,5 +387,11 @@ void btree_set_right(btnode * p_parent, btnode * p_child)
     p_parent->p_left = p_child;
 }
 
-
-
+void btree_size_decrease(btree * p_tree)
+{
+    // do not decrease a null or empty tree
+    if ((NULL == p_tree) || (0 == p_tree->size)){
+        return;
+    }
+    p_tree->size--; 
+}

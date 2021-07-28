@@ -17,7 +17,6 @@ typedef struct avltree_node {
     int factor;
 } avltree_node;
 
-static void avltree_rm_right(avltree * p_tree, avlnode * p_node);
 static void avltree_rotate_left(btnode ** p_node)
 {
     btnode * p_left = btree_left(*p_node);
@@ -96,6 +95,190 @@ static void avltree_rotate_right(btnode ** p_node)
         ((avlnode *)btree_data(p_grandchild))->factor = BALANCED;
         *p_node = p_grandchild;
     }
+}
+
+static void avltree_rm_left(avltree * p_tree, btnode * p_node)
+{
+    // do not allow deletion from null or empty tree
+    if ((NULL == p_tree) || (0 == btree_size(p_tree))){
+        return;
+    }
+    btree_rm_left(p_tree, p_node);
+}
+
+static void avltree_rm_right(avltree * p_tree, btnode * p_node)
+{
+    // do not allow deletion from null or empty tree
+    if ((NULL == p_tree) || (0 == btree_size(p_tree))){
+        return;
+    }
+    btree_rm_right(p_tree, p_node);
+}
+
+static int insert(avltree * p_tree, btnode ** pp_node, void * p_data, int * balanced){
+    avlnode *p_avl_data = NULL;
+    int cmpval = 0;
+    int retval = 0;
+    // insert data into the tree
+    if (btree_is_eob(*pp_node)){
+        // insert into empty tree
+        p_avl_data = calloc(1, sizeof(*p_avl_data));
+        if (NULL == p_data){
+            return -1;
+        }
+        p_avl_data->p_data = p_data;
+        p_avl_data->b_hidden = 0;
+        p_avl_data->factor = BALANCED;
+        return (NULL == btree_ins_left(p_tree, *pp_node, p_avl_data)) ? -1 : 0 ;
+    }
+    else {
+        // insert into a tree that is not empty
+        cmpval = btree_compare(p_tree, p_data, ((avlnode *)btree_data(*pp_node))->p_data);
+        if (cmpval < 0){
+            // move to the left
+            if (btree_is_eob(btree_left(*pp_node))){
+                p_avl_data = calloc(1, sizeof(*p_avl_data));
+                if (NULL == p_avl_data){
+                    return -1;
+                }
+                p_avl_data->p_data = p_data;
+                p_avl_data->b_hidden = 0;
+                p_avl_data->factor = BALANCED;
+                return (NULL == btree_ins_left(p_tree, *pp_node, p_avl_data)) ? -1 : 0 ;
+                *balanced = 0;
+            }
+            else {
+                btnode * p_left = btree_left(*pp_node);
+                if ((retval = (insert(p_tree, &p_left, p_data, balanced))) != 0){
+                    return retval;
+                }
+            }
+            // keep the tree balanced
+            if (!(*balanced)){
+                switch (((avlnode *)btree_data(*pp_node))->factor){
+                    case LEFT_HEAVY:
+                        avltree_rotate_left(pp_node);
+                        *balanced = 1;
+                    break;
+                    case BALANCED:
+                        ((avlnode *)btree_data(*pp_node))->factor = LEFT_HEAVY;
+                    break;
+                    case RIGHT_HEAVY:
+                        ((avlnode *)btree_data(*pp_node))->factor = LEFT_HEAVY;
+                        *balanced = 1;
+                    break;
+                }
+            }
+        }
+        else if (cmpval > 0){
+            // move to the right
+            if (btree_is_eob(btree_right(*pp_node))){
+                p_avl_data = calloc(1, sizeof(*p_avl_data));
+                if (NULL == p_avl_data){
+                    return -1;
+                }
+                p_avl_data->p_data = p_data;
+                p_avl_data->b_hidden = 0;
+                p_avl_data->factor = BALANCED;
+                return (NULL == btree_ins_right(p_tree, *pp_node, p_avl_data)) ? -1 : 0 ;
+                *balanced = 0;
+            }
+            else {
+                btnode * p_right = btree_right(*pp_node);
+                if ((retval = (insert(p_tree, &p_right, p_data, balanced))) != 0){
+                    return retval;
+                }
+            }
+            // keep the tree balanced
+            if (!(*balanced)){
+                switch (((avlnode *)btree_data(*pp_node))->factor){
+                    case LEFT_HEAVY:
+                        ((avlnode *)btree_data(*pp_node))->factor = BALANCED;
+                        *balanced = 1;
+                    break;
+                    case BALANCED:
+                        ((avlnode *)btree_data(*pp_node))->factor = RIGHT_HEAVY;
+                    break;
+                    case RIGHT_HEAVY:
+                        avltree_rotate_right(pp_node);
+                        *balanced = 1;
+                    break;
+                }
+            }
+        }
+        else {
+            // handle copy of data found
+            if (!((avlnode *)btree_data(*pp_node))->b_hidden){
+                // the data is already in the tree and not hidden
+                return -1;
+            }
+            else {
+                // insert the new data and label it not hidden
+                btree_destroy(((avlnode *)btree_data(*pp_node))->p_data);
+                ((avlnode *)btree_data(*pp_node))->p_data = p_data;
+                ((avlnode *)btree_data(*pp_node))->b_hidden = 0;
+                // no rebalance needed
+                *balanced = 1;
+            }
+        }
+    }
+        return 0;
+}
+
+static int hide(avltree * p_tree, btnode * p_node, void * p_data)
+{
+    int cmpval = 0;
+    int retval = 0;
+    // data cant be found if node is end of branch
+    if (btree_is_eob(p_node)){
+        return -1;
+    }
+    cmpval = btree_compare(p_tree, p_data, ((avlnode *)btree_data(p_node))->p_data);
+    // move to the lef
+    if (cmpval < 0){
+        retval = hide(p_tree, btree_left(p_node), p_data);
+    }
+    else if (cmpval > 0){
+        // move to the right
+        retval = hide(p_tree, btree_right(p_node), p_data);
+    }
+    else {
+        // the node is hidden
+        ((avlnode *)btree_data(p_node))->b_hidden = true;
+        retval = 0;
+    }
+    return retval;
+}
+
+static int lookup(avltree * p_tree, btnode * p_node, void ** pp_data)
+{
+    int cmpval = 0;
+    int retval = 0;
+    // data cant be found in a node that is end of branch
+    if (btree_is_eob(p_node)){
+        return -1;
+    }
+    cmpval = btree_compare(p_tree, *pp_data, ((avlnode *)btree_data(p_node))->p_data);
+    if (cmpval < 0){
+        // move to the left
+        retval = lookup(p_tree, btree_left(p_node), pp_data);
+    }
+    else if (cmpval > 0){
+        // move to the right
+        retval = lookup(p_tree, btree_right(p_node), pp_data);
+    }
+    else {
+        if (!(((avlnode *)btree_data(p_node))->b_hidden)){
+            // return data from the tree;
+            *pp_data = ((avlnode *)btree_data(p_node))->p_data;
+            retval = 0;
+        }
+        else {
+            // data was not found
+            return -1;
+        }
+    }   
+    return retval;
 }
 
 /*
