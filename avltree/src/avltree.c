@@ -97,27 +97,8 @@ static void avltree_rotate_right(btnode ** p_node)
     }
 }
 
-/*
-static void avltree_rm_left(avltree * p_tree, btnode * p_node)
-{
-    // do not allow deletion from null or empty tree
-    if ((NULL == p_tree) || (0 == btree_size(p_tree))){
-        return;
-    }
-    btree_rm_left(p_tree, p_node);
-}
-
-static void avltree_rm_right(avltree * p_tree, btnode * p_node)
-{
-    // do not allow deletion from null or empty tree
-    if ((NULL == p_tree) || (0 == btree_size(p_tree))){
-        return;
-    }
-    btree_rm_right(p_tree, p_node);
-}
-*/
 static int insert(avltree * p_tree, btnode ** pp_node, void * p_data, int * balanced){
-    avlnode *p_avl_data = NULL;
+    avlnode * p_avl_data = NULL;
     int cmpval = 0;
     int retval = 0;
     // insert data into the tree
@@ -348,4 +329,24 @@ int64_t avltree_size(avltree * p_tree)
 void * avltree_data(avlnode * p_node)
 {
     return p_node->p_data;
+}
+
+void avltree_preorder(avltree * p_tree, void (* func)(void * p_data))
+{
+    btree_preorder(p_tree, btree_root(p_tree) ,func);
+}
+
+void avltree_inorder(avltree * p_tree, void (* func)(void * p_data))
+{
+    btree_inorder(p_tree, btree_root(p_tree) ,func);
+}
+
+void avltree_postorder(avltree * p_tree, void (* func)(void * p_data))
+{
+    btree_postorder(p_tree, btree_root(p_tree), func);
+}
+
+avlnode * avltree_root(avltree * p_tree)
+{
+    return (avlnode *)btree_data(btree_root(p_tree));
 }

@@ -33,6 +33,31 @@ START_TEST(test_avltree_init)
     ck_assert(NULL != p_tree);
 } END_TEST
 
+START_TEST(test_avltree_size)
+{
+    ck_assert_int_eq(1, avltree_size(p_tree));
+} END_TEST
+
+START_TEST(test_avltree_insert)
+{
+    int num2 = 10;
+    avltree_insert(p_tree, &num2); 
+    ck_assert_int_eq(2, avltree_size(p_tree));
+} END_TEST
+
+START_TEST(test_avltree_remove)
+{
+    int num2 = 10;
+    int num3 = 3;
+    int num4 = 20;
+    avltree_insert(p_tree, &num2);
+    avltree_insert(p_tree, &num3);
+    avltree_insert(p_tree, &num4);
+    ck_assert_int_eq(4, avltree_size(p_tree));
+    avltree_remove(p_tree, &num2);
+    ck_assert_int_eq(4, avltree_size(p_tree));
+} END_TEST
+
 Suite * suite_avltree(void)
 {
     // create suite and case
@@ -42,6 +67,9 @@ Suite * suite_avltree(void)
     tcase_add_checked_fixture(p_case, setup_test_avltree, teardown_test_avltree);
     // add the test
     tcase_add_test(p_case, test_avltree_init);
+    tcase_add_test(p_case, test_avltree_size);
+    tcase_add_test(p_case, test_avltree_insert);
+    tcase_add_test(p_case, test_avltree_remove);
     // add the case to the suite
     suite_add_tcase(p_suite, p_case);
     // return the suite
