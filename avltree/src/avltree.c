@@ -97,6 +97,7 @@ static void avltree_rotate_right(btnode ** p_node)
     }
 }
 
+/*
 static void avltree_rm_left(avltree * p_tree, btnode * p_node)
 {
     // do not allow deletion from null or empty tree
@@ -114,7 +115,7 @@ static void avltree_rm_right(avltree * p_tree, btnode * p_node)
     }
     btree_rm_right(p_tree, p_node);
 }
-
+*/
 static int insert(avltree * p_tree, btnode ** pp_node, void * p_data, int * balanced){
     avlnode *p_avl_data = NULL;
     int cmpval = 0;
@@ -322,8 +323,29 @@ void avltree_destroy(avltree * p_tree)
     }
 }
 
-avltree_node * avltree_insert(avltree * p_tree, void * p_data);
-int8_t avltree_remove(avltree * p_tree, void * p_data);
-avltree_node * avltree_find(avltree * p_tree, void * p_data);
-int64_t avltree_size(avltree * p_tree);
-void * avltree_data(avltree * p_tree, avlnode * p_node);
+int avltree_insert(avltree * p_tree, void * p_data)
+{
+    int balanced = 0;
+    btnode * p_root = btree_root(p_tree);
+    return insert(p_tree, &p_root, p_data, &balanced);
+}
+
+int8_t avltree_remove(avltree * p_tree, void * p_data)
+{
+    return hide(p_tree, btree_root(p_tree), p_data);
+}
+
+int avltree_lookup(avltree * p_tree, void * p_data)
+{
+    return lookup(p_tree, btree_root(p_tree), p_data);
+}
+
+int64_t avltree_size(avltree * p_tree)
+{
+    return btree_size(p_tree);
+}
+
+void * avltree_data(avlnode * p_node)
+{
+    return p_node->p_data;
+}

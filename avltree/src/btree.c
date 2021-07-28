@@ -81,6 +81,7 @@ void btree_destroy(btree * p_tree)
     free(p_tree);
 }
 
+
 /*
  * @brief removes the left child of a given tree
  * @param p_tree the tree to remove the child from
