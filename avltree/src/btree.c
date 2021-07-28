@@ -294,14 +294,13 @@ btnode * btree_root(btree * p_tree)
 
 /*
  * @brief gets the left child of a node 
- * @param  p_tree the tree the node belongs to
  * @param p_node the parent node for the left child
  * @return pointer to the left child node
  */
-btnode * btree_left(btree * p_tree, btnode * p_node)
+btnode * btree_left(btnode * p_node)
 {
-    // ensure the tree is not null
-    if ((NULL == p_tree) || (NULL == p_node)){
+    // ensure the node is not null
+    if (NULL == p_node){
         return NULL;
     }
     return p_node->p_left;
@@ -309,14 +308,13 @@ btnode * btree_left(btree * p_tree, btnode * p_node)
 
 /*
  * @brief gets the right child of a node 
- * @param  p_tree the tree the node belongs to
  * @param p_node the parent node for the right child
  * @return pointer to the right child node
  */
-btnode * btree_right(btree * p_tree, btnode * p_node)
+btnode * btree_right(btnode * p_node)
 {
-    // ensure the tree is not null
-    if ((NULL == p_tree) || (NULL == p_node)){
+    // ensure the node is not null
+    if (NULL == p_node){
         return NULL;
     }
     return p_node->p_right;
@@ -324,14 +322,13 @@ btnode * btree_right(btree * p_tree, btnode * p_node)
 
 /*
  * @brief gets the data in a node
- * @param  p_tree  the tree the data belongs to
  * @param p_node the node the data belongs to
  * @return pointer to the nodes data
  */
-void * btree_data(btree * p_tree, btnode * p_node)
+void * btree_data(btnode * p_node)
 {
-    // ensure the tree is not null
-    if ((NULL == p_tree) || (NULL == p_node)){
+    // ensure the node is not null
+    if (NULL == p_node){
         return NULL;
     }
     return p_node->p_data;
@@ -360,3 +357,26 @@ bool btree_is_leaf(btnode * p_node)
     }
     return ((NULL == p_node->p_left) && (NULL == p_node->p_right));
 }
+
+// setters
+
+void btree_set_left(btnode * p_parent, btnode * p_child)
+{
+    // ensure neither node is null
+    if ((NULL == p_parent) || (NULL == p_child)){
+        return;
+    }
+    p_parent->p_left = p_child;
+}
+
+void btree_set_right(btnode * p_parent, btnode * p_child)
+{
+    // ensure neither node is null
+    if ((NULL == p_parent) || (NULL == p_child)){
+        return;
+    }
+    p_parent->p_left = p_child;
+}
+
+
+

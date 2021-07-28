@@ -17,9 +17,12 @@ void btree_inorder(btree * p_tree, btnode * p_node, void (* func)(void * data));
 // getters
 int64_t btree_size(btree * p_tree);
 btnode * btree_root(btree * p_tree);
-btnode * btree_left(btree * p_tree, btnode * p_node);
-btnode * btree_right(btree * p_tree, btnode * p_node);
+btnode * btree_left(btnode * p_node);
+btnode * btree_right(btnode * p_node);
 bool btree_is_eob(btnode * p_node);
 bool btree_is_leaf(btnode * p_node);
-void * btree_data(btree * p_tree, btnode * p_node);
+void * btree_data(btnode * p_node);
+// setters
+void btree_set_left(btnode * p_parent, btnode * p_child);
+void btree_set_right(btnode * p_parent, btnode * p_child);
 #endif
