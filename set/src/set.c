@@ -45,7 +45,7 @@ member * set_insert(set * p_set, void * p_data)
     if (NULL == p_set){
         return NULL;
     }
-    if (set_is_member(p_set, p_data)){
+    if (NULL != set_is_member(p_set, p_data)){
         return NULL;
     }
     member * p_member = list_ins_next(p_set->p_members, NULL, p_data);
@@ -59,8 +59,13 @@ int set_remove(set * p_set, void * p_data)
     if ((NULL == p_set) || (0 == p_set->size) || (NULL == p_data)){
         return -1;
     }
-    //list_remove(p_set, p_data);
-    return 0;
+    int retval = list_remove(p_set->p_members, p_data);
+    // removal was successful
+    if (0 == retval){
+        p_set->size--;
+        return 0;
+    }
+    return -1;
 }
 
 set * set_union(set * p_set1, set * p_set2);

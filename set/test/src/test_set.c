@@ -20,7 +20,7 @@ static int test_search(void * key1, void * key2)
 
 static int test_compare(void * key1, void * key2)
 {
-    return *(int *)key1 == *(int*)key2;
+    return *(int *)key1 == *(int*)key2 ? 0 : -1;
 }
 
 set * p_set1 = NULL;
@@ -51,6 +51,19 @@ START_TEST(test_set_insert)
     ck_assert_int_eq(2, set_size(p_set1));
 } END_TEST
 
+START_TEST(test_set_remove)
+{
+    int num1 = 10; 
+    int num2 = 20; 
+    int num3 = 30; 
+    set_insert(p_set1, &num1);
+    set_insert(p_set1, &num2);
+    set_insert(p_set1, &num3);
+    ck_assert_int_eq(3, set_size(p_set1));
+    ck_assert_int_eq(0, set_remove(p_set1, &num2));
+    ck_assert_int_eq(2, set_size(p_set1));
+} END_TEST
+
 // create suite
 Suite * suite_set(void)
 {
@@ -60,6 +73,7 @@ Suite * suite_set(void)
     tcase_add_checked_fixture(p_core, start_set, teardown_set);
     tcase_add_test(p_core, test_set_init);
     tcase_add_test(p_core, test_set_insert);
+    tcase_add_test(p_core, test_set_remove);
     // add core to suite
     suite_add_tcase(p_suite, p_core);
     return p_suite;

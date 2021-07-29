@@ -14,7 +14,6 @@ struct list {
     void (* destroy)(void * data);
     int (* compare)(void * key1, void * key2);
     list_elem * p_head;
-    list_elem * p_tail;
 };
 
 /*
@@ -27,7 +26,6 @@ list * list_init(void (* destroy)(void * data), int (* compare)(void * key1, voi
     p_list_t->destroy = destroy;
     p_list_t->compare = compare;
     p_list_t->p_head = NULL;
-    p_list_t->p_tail = NULL;
     return p_list_t;
 }
 
@@ -64,24 +62,23 @@ list_elem * list_ins_next(list * p_list_t, list_elem * p_elem_t, void * p_data)
     // handle empty list
     if (0 == p_list_t->size){
         p_list_t->p_head = p_new_t;
-        p_list_t->p_tail = p_new_t;
     }
     else if (p_elem_t == NULL){
         // handle insert at head
         p_new_t->p_next = p_list_t->p_head;
         p_list_t->p_head = p_new_t;
-        p_new_t->p_prev = p_list_t->p_head;
+        if (NULL != p_new_t->p_next){
+            p_new_t->p_next->p_prev = p_new_t;
+        }
     }
     else {
     // handle insert anywhere else
         p_new_t->p_next = p_elem_t->p_next;
         p_elem_t->p_next = p_new_t;
         p_new_t->p_prev = p_elem_t;
-    }
-
-    // check if new tail
-    if (p_list_t->p_tail == p_elem_t){
-        p_list_t->p_tail = p_new_t;
+        if (NULL != p_new_t->p_next){
+            p_new_t->p_next->p_prev = p_new_t;
+        }
     }
     // update size
     p_list_t->size++;
@@ -101,19 +98,21 @@ int8_t list_rm_next(list * p_list_t, list_elem * p_elem_t)
     if ((NULL == p_list_t) || (0 == p_list_t->size)){
         return -1;
     }
-    // check if removing form the head or somewhere else
+    // check if removing from the head
     list_elem * p_old = NULL;
     if (NULL == p_elem_t){
-        p_old = p_list_t->p_head;    
+        p_old = p_list_t->p_head; 
         p_list_t->p_head = p_old->p_next;
     }
     else {
         p_old = p_elem_t->p_next;
+        if (NULL == p_old){
+            return -1;
+        }
         p_elem_t->p_next = p_old->p_next;
-    }
-    // check if there is a new tail
-    if (p_list_t->p_tail == p_old){
-        p_list_t->p_tail = p_elem_t;
+        if (NULL != p_old->p_next){
+            p_old->p_next->p_prev = p_elem_t; 
+        }
     }
     // free any user defined data if a destroy function was specified
     if (NULL != p_list_t->destroy){
@@ -196,11 +195,6 @@ list_elem * list_head(list * p_list_t)
     return p_list_t->p_head;
 }
 
-list_elem * list_tail(list * p_list_t)
-{
-    return p_list_t->p_tail;
-}
-
 list_elem * list_next(list_elem * p_elem_t)
 {
     return p_elem_t->p_next;
@@ -219,24 +213,23 @@ int list_remove(list * p_list, void * p_data)
     }
     // check if there is a new head
     if (p_list->p_head == p_old){
-        p_list->p_head = p_old->p_next;    
-        p_old->p_next->p_prev = NULL;
+        p_list->p_head = p_old->p_next;
+        if (NULL != p_old->p_next){
+            p_old->p_next->p_prev = NULL;
+        }
     }
     else {
+        //remove from anywhere else
         p_old->p_prev->p_next = p_old->p_next;
-    }
-    // check if there is a new tail 
-    if (p_list->p_tail == p_old){
-        p_list->p_tail = p_old->p_prev;
-        p_old->p_prev->p_next = NULL;
-    }
-    else {
-        p_old->p_next->p_prev = p_old->p_prev;
+        if (NULL != p_old->p_next){
+            p_old->p_next->p_prev = p_old->p_prev;
+        }
     }
     // destroy the list data if user defined destroy exists
     if (NULL != p_list->destroy){
         p_list->destroy(p_old->p_data);
     }
     free(p_old);
+    p_list->size--;
     return 0;
 }
