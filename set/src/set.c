@@ -89,7 +89,25 @@ set * set_union(set * p_set1, set * p_set2)
     return p_setu;
 }
 
-set * set_intersection(set * p_set1, set * p_set2);
+set * set_intersection(set * p_set1, set * p_set2)
+{
+    // create the set for the intersection
+    set * p_seti = set_init(p_set1->destroy, p_set2->compare);
+    member * p_member1 = list_head(p_set1->p_members);
+    member * p_member2 = list_head(p_set2->p_members);
+    // try to get the smallest member to use as the iterator
+    member * p_iter = (p_set1->size < p_set2->size) ? p_member1 : \
+            ((p_set1->size > p_set2->size) ? p_member2 : p_member1);
+    while(NULL != p_iter){
+        if (set_is_member(p_set2, list_data(p_iter))){
+            set_insert(p_seti, list_data(p_iter));
+        }
+        p_iter = list_next(p_iter);
+    }
+    // return intersection set
+    return p_seti;
+}
+
 set * set_difference(set * p_set1, set * p_set2);
 member * set_is_member(set * p_set, void * p_data)
 {
