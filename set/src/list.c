@@ -5,6 +5,7 @@
 
 struct list_elem {
     void * p_data;
+    struct list_elem * p_prev;
     struct list_elem * p_next;
 };
 
@@ -55,12 +56,11 @@ list_elem * list_ins_next(list * p_list_t, list_elem * p_elem_t, void * p_data)
     if (NULL == p_list_t){
         return NULL;
     }
-   
     // create a new element
     list_elem * p_new_t = calloc(1, sizeof(*p_new_t));
     p_new_t->p_data = p_data;
+    p_new_t->p_prev = NULL;
     p_new_t->p_next = NULL;
-
     // handle empty list
     if (0 == p_list_t->size){
         p_list_t->p_head = p_new_t;
@@ -70,11 +70,13 @@ list_elem * list_ins_next(list * p_list_t, list_elem * p_elem_t, void * p_data)
         // handle insert at head
         p_new_t->p_next = p_list_t->p_head;
         p_list_t->p_head = p_new_t;
+        p_new_t->p_prev = p_list_t->p_head;
     }
     else {
     // handle insert anywhere else
         p_new_t->p_next = p_elem_t->p_next;
         p_elem_t->p_next = p_new_t;
+        p_new_t->p_prev = p_elem_t;
     }
 
     // check if new tail
@@ -204,3 +206,37 @@ list_elem * list_next(list_elem * p_elem_t)
     return p_elem_t->p_next;
 }
 
+int list_remove(list * p_list, void * p_data)
+{
+    // do not remove from null list or list that is empty;
+    if ((NULL == p_list) || (0 == p_list->size) || (NULL == p_data)){
+        return -1;
+    }
+    // find the data in the list
+    list_elem * p_old = list_search(p_list, p_data);
+    if (NULL == p_old){
+        return -1;
+    }
+    // check if there is a new head
+    if (p_list->p_head == p_old){
+        p_list->p_head = p_old->p_next;    
+        p_old->p_next->p_prev = NULL;
+    }
+    else {
+        p_old->p_prev->p_next = p_old->p_next;
+    }
+    // check if there is a new tail 
+    if (p_list->p_tail == p_old){
+        p_list->p_tail = p_old->p_prev;
+        p_old->p_prev->p_next = NULL;
+    }
+    else {
+        p_old->p_next->p_prev = p_old->p_prev;
+    }
+    // destroy the list data if user defined destroy exists
+    if (NULL != p_list->destroy){
+        p_list->destroy(p_old->p_data);
+    }
+    free(p_old);
+    return 0;
+}

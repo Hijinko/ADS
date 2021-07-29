@@ -18,5 +18,6 @@ void * list_data(list_elem * p_elem);
 list_elem * list_head(list * p_list_t);
 list_elem * list_tail(list * p_list_t);
 list_elem * list_next(list_elem * p_list_t);
+int list_remove(list * p_list, void * p_data);
 #endif
 
