@@ -163,7 +163,6 @@ list_elem * list_search(list * p_list_t, void * data)
         }; 
         p_elem_t = p_elem_t->p_next;
     }
-    
     return p_temp;
 }
 

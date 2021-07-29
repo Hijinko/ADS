@@ -1,6 +1,7 @@
 #include <set.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 typedef struct list members;
 struct set {
@@ -29,6 +30,15 @@ set * set_init(void (* destroy)(void * p_data), int (* compare)(void * key1, voi
     return p_set;
 }
 
+static void set_add(set * p_dest, set * p_source)
+{
+    member * p_member = list_head(p_source->p_members);
+    while (NULL != p_member){
+        set_insert(p_dest, list_data(p_member));
+        p_member = list_next(p_member);
+    }
+}
+
 void set_destroy(set * p_set)
 {
     // do not tear down null or empty set
@@ -45,7 +55,7 @@ member * set_insert(set * p_set, void * p_data)
     if (NULL == p_set){
         return NULL;
     }
-    if (NULL != set_is_member(p_set, p_data)){
+    if (set_is_member(p_set, p_data)){
         return NULL;
     }
     member * p_member = list_ins_next(p_set->p_members, NULL, p_data);
@@ -68,17 +78,28 @@ int set_remove(set * p_set, void * p_data)
     return -1;
 }
 
-set * set_union(set * p_set1, set * p_set2);
+set * set_union(set * p_set1, set * p_set2)
+{
+    // create a new set that will be the union
+    set * p_setu = set_init(p_set1->destroy, p_set1->compare);
+    // add the nodes from the sets
+    set_add(p_setu, p_set1);
+    set_add(p_setu, p_set2);
+    // return the union set
+    return p_setu;
+}
+
 set * set_intersection(set * p_set1, set * p_set2);
 set * set_difference(set * p_set1, set * p_set2);
 member * set_is_member(set * p_set, void * p_data)
 {
     // do not search in a null or empty set or null data
     if ((NULL == p_set) || (0 == p_set->size) || (NULL == p_data)){
-        return false;
+        return NULL;
     }
     // check if data is in the set
-    return list_search(p_set->p_members, p_data);
+    member * p_member = list_search(p_set->p_members, p_data);
+    return p_member;
 }
 
 bool set_is_subset(set * p_set, set * p_set2);
