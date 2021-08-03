@@ -127,7 +127,20 @@ static void heap_min_heap(heap * p_heap)
  */
 static void heap_max_heap(heap * p_heap)
 {
-    return; 
+    // while the tail node is less than its parent node
+    // swap the values
+    hnode * p_new_node = heap_tail(p_heap);
+    while((NULL != heap_parent(p_heap, p_new_node)) \
+        && (1 == p_heap->compare(p_new_node->p_data, (heap_parent(p_heap, p_new_node))->p_data))){
+        // switch the node indexes
+        hnode * p_temp_node = heap_parent(p_heap, p_new_node);
+        int temp_index = p_temp_node->index;
+        p_temp_node->index = p_new_node->index;
+        p_new_node->index = temp_index;
+        // switch the nodes to their new indexes in the array
+        p_heap->pp_array[p_new_node->index] = p_new_node;
+        p_heap->pp_array[p_temp_node->index] = p_temp_node;
+    }
 }
 
 /*
