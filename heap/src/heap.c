@@ -100,6 +100,54 @@ static hnode * heap_right(heap * p_heap, hnode * p_node)
 }
 
 /*
+ * @brief orders a min heap
+ * @param p_heap the heap to rebalance as a min heap
+ */
+static void heap_min_heap(heap * p_heap)
+{
+    // while the tail node is less than its parent node
+    // swap the values
+    hnode * p_new_node = heap_tail(p_heap);
+    while((NULL != heap_parent(p_heap, p_new_node)) \
+        && (-1 == p_heap->compare(p_new_node->p_data, (heap_parent(p_heap, p_new_node))->p_data))){
+        // switch the node indexes
+        hnode * p_temp_node = heap_parent(p_heap, p_new_node);
+        int temp_index = p_temp_node->index;
+        p_temp_node->index = p_new_node->index;
+        p_new_node->index = temp_index;
+        // switch the nodes to their new indexes in the array
+        p_heap->pp_array[p_new_node->index] = p_new_node;
+        p_heap->pp_array[p_temp_node->index] = p_temp_node;
+    }
+}
+
+/*
+ * @brief orders a max heap
+ * @param p_heap the heap to rebalance as a max heap
+ */
+static void heap_max_heap(heap * p_heap)
+{
+    return; 
+}
+
+/*
+ * @brief rebalances a heap
+ * @param p_heap the heap to rebalance
+ */
+static void heap_heapify(heap * p_heap)
+{
+    // check if the last node in the heap is greater than or less than the parent
+    // this is based on the ordering of the heap
+    // min heap defined
+    if (MIN == p_heap->ordering){
+        heap_min_heap(p_heap); 
+    }
+    else {
+        heap_max_heap(p_heap);
+    }
+}
+
+/*
  * @brief allocate and initialize a heap
  * @param ordering integer identifying if the heap should be min or max heap 0 or 1 respectively   
  * @param destroy user defined function to tear down the nodes data
@@ -151,7 +199,29 @@ void heap_destroy(heap * p_heap)
  * @param p_data the data of the new node
  * @return pointer to the new heap node inside the heap or NULL on error
  */
-hnode * heap_insert(heap * p_heap, void * p_data);
+hnode * heap_insert(heap * p_heap, void * p_data)
+{
+    // cant insert into a null heap or from null data
+    if ((NULL == p_heap) || (NULL == p_data)){
+        return NULL;
+    }
+    // create the new node
+    hnode * p_node = calloc(1, sizeof(*p_node));
+    p_node->p_data = p_data;
+    p_node->index = p_heap->size;
+    if (NULL == p_node){
+        return NULL;
+    }
+    // assign the new node at the end of the heap
+    p_heap->pp_array[p_node->index] = p_node;    
+    p_heap->size++;
+    // if the heap size is not zero then we have to rebalance the heap
+    if (0 != p_heap->size){
+        heap_heapify(p_heap);    
+    }
+    // return the node
+    return p_node;
+}
 
 /*
  * @brief gets the data at the root of the heap but does not remove it
