@@ -302,11 +302,12 @@ void heap_destroy(heap * p_heap)
         return;
     }
     // perform user defined destroy
-    if (NULL != p_heap->destroy){
-        for (int64_t index = p_heap->size; index > 0; index--){
-            p_heap->destroy((heap_member(p_heap, index))->p_data);    
+        for (int64_t index = p_heap->size; index >= 0; index--){
+            if (NULL != p_heap->destroy){
+                p_heap->destroy((heap_member(p_heap, index))->p_data);    
+            }
+            free(p_heap->pp_array[index]);
         }
-    }
     free(p_heap->pp_array);
     free(p_heap);
 }
@@ -317,7 +318,7 @@ void heap_destroy(heap * p_heap)
  * @param p_data the data of the new node
  * @return pointer to the new heap node inside the heap or NULL on error
  */
-hnode * heap_insert(heap * p_heap, void * p_data)
+hnode * heap_insert(heap * p_heap, const void * p_data)
 {
     // cant insert into a null heap or from null data
     if ((NULL == p_heap) || (NULL == p_data)){
@@ -325,7 +326,7 @@ hnode * heap_insert(heap * p_heap, void * p_data)
     }
     // create the new node
     hnode * p_node = calloc(1, sizeof(*p_node));
-    p_node->p_data = p_data;
+    p_node->p_data = (void *)p_data;
     p_node->index = p_heap->size;
     if (NULL == p_node){
         return NULL;
@@ -379,4 +380,18 @@ hnode * heap_pull(heap * p_heap)
     // swap with the greater or lesser child
     // return the old root
     return p_old_root;
+}
+
+/*
+ * @brief get the data in a heap node
+ * @brief p_node the node to get the data from
+ * @return void pointer to the nodes data
+ */
+void * heap_data(hnode * p_node)
+{
+    // cant get the data in a null node
+    if (NULL == p_node){
+        return NULL;
+    }
+    return p_node->p_data;
 }

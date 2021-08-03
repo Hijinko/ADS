@@ -15,6 +15,8 @@ heap * p_heap = NULL;
 static void start_heap(void)
 {
     p_heap = heap_init(MAX, NULL, test_compare); 
+    int num1 = 10;
+    heap_insert(p_heap, &num1);
 }
 
 static void teardown_heap(void)
@@ -27,6 +29,17 @@ START_TEST(test_heap_init)
     ck_assert(NULL != p_heap);    
 } END_TEST
 
+START_TEST(test_heap_insert)
+{
+    int num1 = 20;
+    ck_assert(NULL != heap_insert(p_heap, &num1));
+} END_TEST
+
+START_TEST(test_heap_peak)
+{
+    ck_assert(NULL != heap_peak(p_heap));
+} END_TEST
+
 // create suite
 Suite * suite_heap(void)
 {
@@ -35,6 +48,8 @@ Suite * suite_heap(void)
     // add test cases 
     tcase_add_checked_fixture(p_core, start_heap, teardown_heap);
     tcase_add_test(p_core, test_heap_init);
+    tcase_add_test(p_core, test_heap_insert);
+    tcase_add_test(p_core, test_heap_peak);
     // add core to suite
     suite_add_tcase(p_suite, p_core);
     return p_suite;
