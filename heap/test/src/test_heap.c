@@ -14,7 +14,7 @@ static int8_t test_compare(void * p_key1, void * p_key2){
 heap * p_heap = NULL;
 static void start_heap(void)
 {
-    p_heap = heap_init(MAX, 2, NULL, test_compare); 
+    p_heap = heap_init(MAX, NULL, test_compare); 
 }
 
 static void teardown_heap(void)

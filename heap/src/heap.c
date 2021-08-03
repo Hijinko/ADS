@@ -3,6 +3,10 @@
 #include <stdint.h>
 
 /*
+ * @param INITIAL_MEMBERS the initial size of the pp_array
+ */
+enum {INITIAL_MEMBERS = 10};
+/*
  * @brief the node that is stored in a heap
  * @param p_data pointer to the data in the node
  * @param index index of the node
@@ -15,7 +19,6 @@ struct heap_node {
 /*
  * @brief a heap structure 
  * @param ordering either min or max ordering
- * @param max_children maximum amount of nodes the heap can have
  * @param size the number of children in the heap
  * @param destroy the tear down function for the data in a heap node
  * @param compare the user defined compare function for the heap
@@ -23,7 +26,6 @@ struct heap_node {
  */
 struct heap {
     int ordering;
-    int max_children;
     int64_t size;
     void (* destroy)(void * p_data);
     int8_t (* compare)(void * p_key1, void * p_key2);
@@ -42,6 +44,21 @@ static hnode * heap_member(heap * p_heap, int index)
 }
 
 /*
+ * @brief get the last element in a heap
+ * @param p_heap the heap to get the tail from
+ * @return the tail node of the heap
+ */
+static hnode * heap_tail(heap * p_heap)
+{
+    // an empty heap does not have a tail
+    if (0 == p_heap->size){
+        return NULL;
+    }
+    // return the tail
+    return heap_member(p_heap, p_heap->size);
+}
+
+/*
  * @brief get the parent node of a specified heap node
  * @param p_heap the heap to search in
  * @param p_node the node to get the parent from
@@ -54,23 +71,8 @@ static hnode * heap_parent(heap * p_heap, hnode * p_node)
         return NULL;
     }
 
-    int index = ((p_node->index) / 2);
+    int index = ((p_node->index - 1) / 2);
     return heap_member(p_heap, index);
-}
-
-/*
- * @brief get the last element in a heap
- * @param p_heap the heap to get the tail from
- * @return the tail node of the heap
- */
-static hnode * heap_tail(heap * p_heap)
-{
-    // an empty heap does not have a tail
-    if (0 == p_heap->size){
-        return NULL;
-    }
-
-    return heap_member(p_heap, p_heap->size);
 }
 
 /*
@@ -81,7 +83,7 @@ static hnode * heap_tail(heap * p_heap)
  */
 static hnode * heap_left(heap * p_heap, hnode * p_node)
 {
-    int index = ((p_node->index) * (p_heap->max_children));
+    int index = ((2 * p_node->index) + 1);
     return heap_member(p_heap, index);
 }
 
@@ -93,19 +95,18 @@ static hnode * heap_left(heap * p_heap, hnode * p_node)
  */
 static hnode * heap_right(heap * p_heap, hnode * p_node)
 {
-    int index = (((p_node->index) * (p_heap->max_children)) + 1);
+    int index = ((2 * p_node->index) + 2);
     return heap_member(p_heap, index);
 }
 
 /*
  * @brief allocate and initialize a heap
  * @param ordering integer identifying if the heap should be min or max heap 0 or 1 respectively   
- * @param max_children the initial max number of elements in the heap
  * @param destroy user defined function to tear down the nodes data
  * @param compare user defined function to compare the data in the nodes should return -1 0 or 1
  * @return a newly initialized heap or NULL on error
  */
-heap * heap_init(int ordering, int max_children, void (* destroy)(void * p_data), int8_t (* compare)(void * p_key1, void * p_key2))
+heap * heap_init(int ordering, void (* destroy)(void * p_data), int8_t (* compare)(void * p_key1, void * p_key2))
 {
     // create the heap
     heap * p_heap = calloc(1, sizeof(*p_heap));
@@ -114,11 +115,10 @@ heap * heap_init(int ordering, int max_children, void (* destroy)(void * p_data)
     }
     // initialize the values
     p_heap->ordering = ordering;
-    p_heap->max_children = max_children;
     p_heap->size = 0;
     p_heap->destroy = destroy;
     p_heap->compare = compare;
-    p_heap->pp_array = calloc(max_children + 1, sizeof(hnode));
+    p_heap->pp_array = calloc(INITIAL_MEMBERS, sizeof(hnode));
     if (NULL == p_heap->pp_array){
         return NULL;
     }
