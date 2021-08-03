@@ -158,7 +158,14 @@ hnode * heap_insert(heap * p_heap, void * p_data);
  * @param p_heap the heap to get the root from
  * @return pointer to the heap that is the root
  */
-hnode * heap_peak(heap * p_heap);
+hnode * heap_peak(heap * p_heap)
+{
+    // cant peek at a null or empty heap
+    if ((NULL == p_heap) || (0 == p_heap->size)){
+        return NULL;
+    }
+    return heap_member(p_heap, 0);
+}
 
 /*
  * @brief gets the data at the root of the heap and removes it from the heap
