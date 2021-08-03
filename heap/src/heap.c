@@ -1,6 +1,7 @@
 #include <heap.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 /*
  * @param INITIAL_MEMBERS the initial size of the pp_array
@@ -41,6 +42,20 @@ struct heap {
 static hnode * heap_member(heap * p_heap, int index)
 {
     return (hnode *)((p_heap->pp_array) + index);
+}
+
+/*
+ * @brief gets the root of a heap
+ * @param p_heap the heap to get the root from
+ * @return pointer to the root node in the heap
+ */
+static hnode * heap_root(heap * p_heap)
+{
+    // cant get the root from a null or empty heap
+    if ((NULL == p_heap) || (0 == p_heap->size)){
+        return NULL;
+    }
+    return heap_member(p_heap, 0);
 }
 
 /*
@@ -100,10 +115,10 @@ static hnode * heap_right(heap * p_heap, hnode * p_node)
 }
 
 /*
- * @brief orders a min heap
+ * @brief orders a min after inserting a new node heap
  * @param p_heap the heap to rebalance as a min heap
  */
-static void heap_min_heap(heap * p_heap)
+static void heap_min_up(heap * p_heap)
 {
     // while the tail node is less than its parent node
     // swap the values
@@ -122,10 +137,10 @@ static void heap_min_heap(heap * p_heap)
 }
 
 /*
- * @brief orders a max heap
+ * @brief orders a max after inserting a new node heap
  * @param p_heap the heap to rebalance as a max heap
  */
-static void heap_max_heap(heap * p_heap)
+static void heap_max_up(heap * p_heap)
 {
     // while the tail node is less than its parent node
     // swap the values
@@ -144,19 +159,109 @@ static void heap_max_heap(heap * p_heap)
 }
 
 /*
- * @brief rebalances a heap
+ * @brief rebalances a heap after inserting a new node
  * @param p_heap the heap to rebalance
  */
-static void heap_heapify(heap * p_heap)
+static void heap_bubble_up(heap * p_heap)
 {
     // check if the last node in the heap is greater than or less than the parent
     // this is based on the ordering of the heap
     // min heap defined
     if (MIN == p_heap->ordering){
-        heap_min_heap(p_heap); 
+        heap_min_up(p_heap); 
     }
     else {
-        heap_max_heap(p_heap);
+        heap_max_up(p_heap);
+    }
+}
+
+/*
+ * @brief rebalances a min heap after removing a new node 
+ * @param p_heap the heap to rebalance
+ */
+static void heap_min_down(heap * p_heap)
+{
+    hnode * p_new_root = heap_root(p_heap);
+    bool b_done = false;
+    // continue to swap the root with its children until neither of its children is
+    // less than the current node
+    while (!b_done){
+        // get the lesser value of the two children
+        hnode * p_lesser_temp = NULL;
+        hnode * p_left = heap_left(p_heap, p_new_root);
+        hnode * p_right = heap_right(p_heap, p_new_root);
+        if (-1 == p_heap->compare(p_left, p_right)){
+            p_lesser_temp = p_left;
+        }
+        else {
+            p_lesser_temp = p_right;
+        }
+        // swap the values if the new_root is less than the lesser child 
+        if ((NULL != p_lesser_temp) && (-1 == p_heap->compare(p_new_root, p_lesser_temp))){
+            // switch the node indexes
+            int temp_index = p_lesser_temp->index; 
+            p_lesser_temp->index = p_new_root->index;
+            p_new_root->index = temp_index;
+            // switch the nodes to their new indexes in the array
+            p_heap->pp_array[p_new_root->index] = p_new_root;
+            p_heap->pp_array[p_lesser_temp->index] = p_lesser_temp;
+        }
+        else {
+            // if the new root children are not lesser than the new root then exit the loop
+            b_done = true;
+        }
+    }
+}
+
+/*
+ * @brief rebalances a max heap after removing a new node 
+ * @param p_heap the heap to rebalance
+ */
+static void heap_max_down(heap * p_heap)
+{
+    hnode * p_new_root = heap_root(p_heap);
+    bool b_done = false;
+    // continue to swap the root with its children until neither of its children is
+    // greater than the current node
+    while (!b_done){
+        // get the greater value of the two children
+        hnode * p_greater_temp = NULL;
+        hnode * p_left = heap_left(p_heap, p_new_root);
+        hnode * p_right = heap_right(p_heap, p_new_root);
+        if (1 == p_heap->compare(p_left, p_right)){
+            p_greater_temp = p_left;
+        }
+        else {
+            p_greater_temp = p_right;
+        }
+        // swap the values if the new_root is less than the lesser child 
+        if ((NULL != p_greater_temp) && (1 == p_heap->compare(p_new_root, p_greater_temp))){
+            // switch the node indexes
+            int temp_index = p_greater_temp->index; 
+            p_greater_temp->index = p_new_root->index;
+            p_new_root->index = temp_index;
+            // switch the nodes to their new indexes in the array
+            p_heap->pp_array[p_new_root->index] = p_new_root;
+            p_heap->pp_array[p_greater_temp->index] = p_greater_temp;
+        }
+        else {
+            // if the new root children are not greater than the new root then exit
+            b_done = true;
+        }
+    }
+
+}
+
+/*
+ * @brief rebalances a heap after removing the root
+ * @param p_heap the heap to rebalance
+ */
+static void heap_bubble_down(heap * p_heap){
+    if (MIN == p_heap->ordering){
+        heap_min_down(p_heap);
+    }
+    else {
+       heap_max_down(p_heap); 
     }
 }
 
@@ -230,7 +335,7 @@ hnode * heap_insert(heap * p_heap, void * p_data)
     p_heap->size++;
     // if the heap size is not zero then we have to rebalance the heap
     if (0 != p_heap->size){
-        heap_heapify(p_heap);    
+        heap_bubble_up(p_heap);    
     }
     // return the node
     return p_node;
@@ -255,4 +360,23 @@ hnode * heap_peak(heap * p_heap)
  * @param p_heap the heap to get the root from
  * @return pointer to the heap that is the root
  */
-hnode * heap_pull(heap * p_heap);
+hnode * heap_pull(heap * p_heap)
+{
+    // cant get the root of a NULL or empty heap
+    if ((NULL == p_heap) || (0 == p_heap->size)){
+        return NULL;
+    }
+    // store the old root value to hold the heap root 
+    hnode * p_old_root = heap_member(p_heap, 0);
+    // insert the last value as the new root
+    hnode * p_new_root = heap_tail(p_heap); 
+    p_heap->pp_array[0] = p_new_root;
+    p_new_root->index = 0;
+    // we are removing the old root so we have to decrease the size
+    p_heap->size--;
+    heap_bubble_down(p_heap);
+    // while the new root is greater than or less than its children based on ordering
+    // swap with the greater or lesser child
+    // return the old root
+    return p_old_root;
+}
