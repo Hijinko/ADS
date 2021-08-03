@@ -129,7 +129,21 @@ heap * heap_init(int ordering, int max_children, void (* destroy)(void * p_data)
  * @brief tear down a heap
  * @param p_heap the heap to tear down
  */
-void * heap_destroy(heap * p_heap);
+void heap_destroy(heap * p_heap)
+{
+    // cant destroy a NULL heap
+    if (NULL == p_heap){
+        return;
+    }
+    // perform user defined destroy
+    if (NULL != p_heap->destroy){
+        for (int64_t index = p_heap->size; index > 0; index--){
+            p_heap->destroy((heap_member(p_heap, index))->p_data);    
+        }
+    }
+    free(p_heap->pp_array);
+    free(p_heap);
+}
 
 /*
  * @brief adds a new node to a heap
