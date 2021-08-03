@@ -25,7 +25,7 @@ struct heap {
     int ordering;
     int max_children;
     int64_t size;
-    void (* destory)(void * p_data);
+    void (* destroy)(void * p_data);
     int8_t (* compare)(void * p_key1, void * p_key2);
     hnode ** pp_array;
 };
@@ -107,7 +107,22 @@ static hnode * heap_right(heap * p_heap, hnode * p_node)
  */
 heap * heap_init(int ordering, int max_children, void (* destroy)(void * p_data), int8_t (* compare)(void * p_key1, void * p_key2))
 {
-
+    // create the heap
+    heap * p_heap = calloc(1, sizeof(*p_heap));
+    if (NULL == p_heap){
+        return NULL;
+    }
+    // initialize the values
+    p_heap->ordering = ordering;
+    p_heap->max_children = max_children;
+    p_heap->size = 0;
+    p_heap->destroy = destroy;
+    p_heap->compare = compare;
+    p_heap->pp_array = calloc(max_children + 1, sizeof(hnode));
+    if (NULL == p_heap->pp_array){
+        return NULL;
+    }
+    return p_heap;
 }
 
 /*
