@@ -1,8 +1,8 @@
 #ifndef _GRAPH_H
 #define _GRAPH_H
 #include <stdint.h>
-typedef struct graph graph
-typedef struct graph_vertex vertex
+typedef struct graph graph;
+typedef struct graph_vertex vertex;
 graph * graph_init(void (* destory)(void * p_data), int8_t (* compare)(void * p_key1, void * p_key2));
 void graph_destroy(graph * p_graph);
 vertex * graph_ins_vertex(graph * p_graph, void * p_data);

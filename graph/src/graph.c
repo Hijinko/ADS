@@ -1,9 +1,9 @@
 #include <graph.h>
 #include <stdint.h>
+#include <list.h>
 
 struct graph_vertex {
     void * p_data;
-
 };
 
 struct graph {
@@ -24,4 +24,3 @@ vertex ** graph_adjlist(graph * p_grap, vertex * p_vertex);
 int8_t graph_is_adjacent(graph * p_graph, vertex * p_vertex1, vertex * p_vertex2);
 int64_t graph_vcount(graph * p_graph);
 int64_t graph_ecount(graph * p_graph);
-#endif

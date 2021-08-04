@@ -16,6 +16,8 @@ all: $(BIN)libgraph.a check
 ################
 $(BIN)graph.o: $(SRC)graph.c $(INC)graph.h
 	$(CMD) -c $< -o $@
+$(BIN)list.o: $(SRC)list.c $(INC)list.h
+	$(CMD) -c $< -o $@
 
 ################
 # test targets #
@@ -30,8 +32,8 @@ $(TSTBIN)test_graph.o: $(TSTSRC)test_graph.c
 ####################
 # libarary targets #
 ####################
-$(BIN)libgraph.a: $(BIN)libgraph.a($(BIN)graph.o);
-$(TSTBIN)libtestgraph.a: $(TSTBIN)libtestgraph.a($(TSTBIN)test_graph.o $(BIN)graph.o);
+$(BIN)libgraph.a: $(BIN)libgraph.a($(BIN)graph.o $(BIN)list.o);
+$(TSTBIN)libtestgraph.a: $(TSTBIN)libtestgraph.a($(TSTBIN)test_graph.o $(BIN)graph.o $(BIN)list.o);
 clean:
 	find . -type f -iname *.o -exec rm -rf {} \;
 	find . -type f -iname *.a -exec rm -rf {} \;
