@@ -2,11 +2,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 /*
  * @param INITIAL_MEMBERS the initial size of the pp_array
+ * @param TOLERANCE the percentage of use space acceptable for an array
  */
-enum {INITIAL_MEMBERS = 10};
+enum {INITIAL_MEMBERS = 5};
+
+/*
+ * @param TOLERANCE the percentage of use space acceptable for an array
+ */
+static const float TOLERANCE = .80;
 /*
  * @brief the node that is stored in a heap
  * @param p_data pointer to the data in the node
@@ -20,6 +27,7 @@ struct heap_node {
 /*
  * @brief a heap structure 
  * @param ordering either min or max ordering
+ * @param node_space number of nodes allocated for the heap
  * @param size the number of children in the heap
  * @param destroy the tear down function for the data in a heap node
  * @param compare the user defined compare function for the heap
@@ -27,6 +35,7 @@ struct heap_node {
  */
 struct heap {
     int ordering;
+    uint64_t node_space;
     int64_t size;
     void (* destroy)(void * p_data);
     int8_t (* compare)(void * p_key1, void * p_key2);
@@ -41,7 +50,7 @@ struct heap {
  */
 static hnode * heap_member(heap * p_heap, int index)
 {
-    return (hnode *)((p_heap->pp_array) + index);
+    return p_heap->pp_array[index];
 }
 
 /*
@@ -66,11 +75,11 @@ static hnode * heap_root(heap * p_heap)
 static hnode * heap_tail(heap * p_heap)
 {
     // an empty heap does not have a tail
-    if (0 == p_heap->size){
+    if ((NULL == p_heap) || (0 == p_heap->size)){
         return NULL;
     }
     // return the tail
-    return heap_member(p_heap, p_heap->size);
+    return heap_member(p_heap, p_heap->size - 1);
 }
 
 /*
@@ -281,10 +290,11 @@ heap * heap_init(int ordering, void (* destroy)(void * p_data), int8_t (* compar
     }
     // initialize the values
     p_heap->ordering = ordering;
+    p_heap->node_space = INITIAL_MEMBERS;
     p_heap->size = 0;
     p_heap->destroy = destroy;
     p_heap->compare = compare;
-    p_heap->pp_array = calloc(INITIAL_MEMBERS, sizeof(hnode));
+    p_heap->pp_array = calloc(p_heap->node_space, sizeof(*(p_heap->pp_array)));
     if (NULL == p_heap->pp_array){
         return NULL;
     }
@@ -302,13 +312,27 @@ void heap_destroy(heap * p_heap)
         return;
     }
     // perform user defined destroy
-    if (NULL != p_heap->destroy){
-        for (int64_t index = p_heap->size; index > 0; index--){
-            p_heap->destroy((heap_member(p_heap, index))->p_data);    
+        for (int64_t index = p_heap->size; index >= 0; index--){
+            if (NULL != p_heap->destroy){
+                p_heap->destroy((heap_member(p_heap, index))->p_data);    
+            }
+            free(p_heap->pp_array[index]);
         }
-    }
     free(p_heap->pp_array);
     free(p_heap);
+}
+
+/*
+ * @brief gets the size of a heap
+ * @param p_heap the heap to get the size of
+ * @return the size of the heap or -1 on error
+ */
+int64_t heap_size(heap * p_heap)
+{
+    if (NULL == p_heap){
+        return -1;
+    }
+    return p_heap->size;
 }
 
 /*
@@ -325,16 +349,26 @@ hnode * heap_insert(heap * p_heap, void * p_data)
     }
     // create the new node
     hnode * p_node = calloc(1, sizeof(*p_node));
-    p_node->p_data = p_data;
-    p_node->index = p_heap->size;
     if (NULL == p_node){
+        perror("heap insert ");
         return NULL;
     }
+    p_node->p_data = p_data;
+    p_node->index = p_heap->size;
     // assign the new node at the end of the heap
     p_heap->pp_array[p_node->index] = p_node;    
     p_heap->size++;
+    // reallocate the array if needed
+    if (((float)p_heap->size / p_heap->node_space) >= TOLERANCE){
+        hnode ** pp_temp = (hnode **)realloc(p_heap->pp_array, (p_heap->size * 2) * sizeof(hnode *));
+        if (NULL == pp_temp){
+            perror("insert realloc ");
+        }
+        p_heap->pp_array = pp_temp;
+        p_heap->node_space = p_heap->size * 2;
+    }
     // if the heap size is not zero then we have to rebalance the heap
-    if (0 != p_heap->size){
+    if (1 != p_heap->size){
         heap_bubble_up(p_heap);    
     }
     // return the node
@@ -346,7 +380,7 @@ hnode * heap_insert(heap * p_heap, void * p_data)
  * @param p_heap the heap to get the root from
  * @return pointer to the heap that is the root
  */
-hnode * heap_peak(heap * p_heap)
+hnode * heap_peek(heap * p_heap)
 {
     // cant peek at a null or empty heap
     if ((NULL == p_heap) || (0 == p_heap->size)){
@@ -379,4 +413,18 @@ hnode * heap_pull(heap * p_heap)
     // swap with the greater or lesser child
     // return the old root
     return p_old_root;
+}
+
+/*
+ * @brief get the data in a heap node
+ * @brief p_node the node to get the data from
+ * @return void pointer to the nodes data
+ */
+void * heap_data(hnode * p_node)
+{
+    // cant get the data in a null node
+    if (NULL == p_node){
+        return NULL;
+    }
+    return p_node->p_data;
 }
