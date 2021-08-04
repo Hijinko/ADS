@@ -283,6 +283,10 @@ static void heap_bubble_down(heap * p_heap){
  */
 heap * heap_init(int ordering, void (* destroy)(void * p_data), int8_t (* compare)(void * p_key1, void * p_key2))
 {
+    // a compare function must be passed
+    if (NULL == compare){
+        return NULL;
+    }
     // create the heap
     heap * p_heap = calloc(1, sizeof(*p_heap));
     if (NULL == p_heap){
