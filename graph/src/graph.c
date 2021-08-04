@@ -137,5 +137,31 @@ int8_t graph_rm_vertex(graph * p_graph, void * p_data);
 int8_t graph_rm_edge(graph * p_graph, vertex * p_vertex1, vertex * p_vertex2);
 vertex ** graph_adjlist(graph * p_grap, vertex * p_vertex);
 int8_t graph_is_adjacent(graph * p_graph, vertex * p_vertex1, vertex * p_vertex2);
-int64_t graph_vcount(graph * p_graph);
-int64_t graph_ecount(graph * p_graph);
+
+/*
+ * @brief gets the vertices count of the graph 
+ * @param p_graph the graph to get the vertices count from
+ * @return the number of vertices in a graph or -1 on error
+ */
+int64_t graph_vcount(graph * p_graph)
+{
+    // cant get the vertices count from a null graph
+    if (NULL == p_graph){
+        return -1;
+    }
+    return p_graph->vcount;
+}
+
+/*
+ * @brief gets the edge count of the graph 
+ * @param p_graph the graph to get the edge count from
+ * @return the number of edges in a graph or -1 on error
+ */
+int64_t graph_ecount(graph * p_graph)
+{
+    // cant get the edge count from a null graph
+    if (NULL == p_graph){
+        return -1;
+    }
+    return p_graph->ecount;
+}
