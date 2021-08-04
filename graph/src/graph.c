@@ -32,6 +32,31 @@ struct graph {
 };
 
 /*
+ * @brief creates and initializes a vertex 
+ * @param p_data the data that the vertex should have
+ */
+static vertex * graph_vertex_init(void * p_data, void (* destroy)(void * p_data), int8_t (* compare)(void * p_key1, void * p_key2))
+{
+    // cant create a vertex with null data
+    if (NULL == p_data){
+        return NULL;
+    }
+    // create and allocate space for the vertex
+    vertex * p_vertex = calloc(1, sizeof(*p_vertex));
+    if (NULL == p_vertex){
+        return NULL;
+    }
+    // set the vertex values
+    p_vertex->p_data = p_data;
+    p_vertex->p_adjacent = set_init(destroy, compare);
+    if (NULL == p_vertex->p_adjacent){
+        return NULL;
+    }
+    // return the new vertex
+    return p_vertex;
+}
+
+/*
  * @brief allocates a graph structure and initializes the graphs values 
  * @param destroy user defined destroy function for the data in the vertices
  * @param compare user defined compare function for the data in the vertices
