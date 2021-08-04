@@ -32,7 +32,18 @@ START_TEST(test_graph_init)
 START_TEST(test_graph_ins_vertex)
 {
     int num1 = 10;
+    int num2 = 20;
+    int num3 = 30;
     ck_assert(NULL != graph_ins_vertex(p_graph, &num1));
+    ck_assert(NULL != graph_ins_vertex(p_graph, &num2));
+    ck_assert(NULL != graph_ins_vertex(p_graph, &num3));
+} END_TEST
+
+START_TEST(test_graph_vcount)
+{
+    int num1 = 10;
+    ck_assert(NULL != graph_ins_vertex(p_graph, &num1));
+    ck_assert_int_eq(1, graph_vcount(p_graph));
 } END_TEST
 
 // create suite
@@ -44,6 +55,7 @@ Suite * suite_graph(void)
     tcase_add_checked_fixture(p_core, start_graph, teardown_graph);
     tcase_add_test(p_core, test_graph_init);
     tcase_add_test(p_core, test_graph_ins_vertex);
+    tcase_add_test(p_core, test_graph_vcount);
     // add core to suite
     suite_add_tcase(p_suite, p_core);
     return p_suite;
