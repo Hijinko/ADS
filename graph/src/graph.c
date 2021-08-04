@@ -103,7 +103,35 @@ void graph_destroy(graph * p_graph)
     free(p_graph);
 }
 
-vertex * graph_ins_vertex(graph * p_graph, void * p_data);
+/*
+ * @brief inserts a new vertex into a graph
+ * @param p_graph the graph to insert the vertex into
+ * @param p_data the data for the new vertex
+ * @return a pointer to the new vertex or NULL on error
+ */
+vertex * graph_ins_vertex(graph * p_graph, void * p_data)
+{
+    // can't create a vertex from null data or into a null graph
+    if ((NULL == p_graph) || (NULL == p_data)){
+        return NULL;
+    }
+    // do not allow insertion of duplicate vertexes
+    if (NULL == list_search(p_graph->p_vertices, p_data)){
+        return NULL;
+    }
+    // create the new vertex
+    vertex * p_vertex = graph_vertex_init(p_data, p_graph->destroy, p_graph->compare);
+    if (NULL == p_vertex){
+        perror("graph_ins_vertex ");
+        return NULL;
+    }
+    // add the new vertex to the graph
+    list_ins_next(p_graph->p_vertices, NULL, p_data);
+    // increase the vertices count in the graph and return the new vertex
+    p_graph->vcount++; 
+    return p_vertex;
+}
+
 int8_t graph_ins_edge(graph * p_grap, vertex * p_vertex1, vertex * p_vertex2);
 int8_t graph_rm_vertex(graph * p_graph, void * p_data); 
 int8_t graph_rm_edge(graph * p_graph, vertex * p_vertex1, vertex * p_vertex2);
