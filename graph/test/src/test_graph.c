@@ -7,11 +7,6 @@
 
 static graph * p_graph = NULL;
 
-static void test_free(void * data)
-{
-    free((char *)data); 
-}
-
 static int8_t test_compare(void * key1, void * key2)
 {
     int num1 = *(int *)key1;
@@ -26,7 +21,7 @@ static void start_graph(void)
 
 static void teardown_graph(void)
 {
-    
+    graph_destroy(p_graph); 
 }
 
 START_TEST(test_graph_init)

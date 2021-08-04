@@ -51,7 +51,22 @@ graph * graph_init(void (* destroy)(void * p_data), int8_t (* compare)(void * p_
     return p_graph;
 }
 
-void graph_destroy(graph * p_graph);
+/*
+ * @brief tear down a graph structure and free all remaining memory
+ * @param p_graph the graph to tear down
+ */
+void graph_destroy(graph * p_graph)
+{
+    // cant destroy a NULL graph
+    if (NULL == p_graph){
+        return;
+    }
+    // free all the allocated data in the vertices and the
+    // vertices list
+    list_destroy(p_graph->p_vertices);
+    free(p_graph);
+}
+
 vertex * graph_ins_vertex(graph * p_graph, void * p_data);
 int8_t graph_ins_edge(graph * p_grap, vertex * p_vertex1, vertex * p_vertex2);
 int8_t graph_rm_vertex(graph * p_graph, void * p_data); 
