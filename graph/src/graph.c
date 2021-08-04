@@ -2,18 +2,28 @@
 #include <stdint.h>
 #include <list.h>
 
-struct graph_vertex {
-    void * p_data;
-};
-
+/*
+ * @brief graph data type structure
+ * @param vcount the number of vertices in the graph
+ * @param ecount the number of edges in the graph
+ * @param destroy user defined destroy function for the data in the vertices
+ * @param compare user defined compare function for the data in the vertices
+ * @param pp_vertices list of vertices in the graph
+ */
 struct graph {
     int64_t vcount;
     int64_t ecount;
-    int8_t (* compare)(void * p_key1, void * p_key2);
     void (* destroy)(void * p_data);
-    vertex ** pp_vertices;
+    int8_t (* compare)(void * p_key1, void * p_key2);
+    list ** pp_vertices;
 };
 
+/*
+ * @brief allocates a graph structure and initializes the graphs values 
+ * @param destroy user defined destroy function for the data in the vertices
+ * @param compare user defined compare function for the data in the vertices
+ * @return pointer to the newly allocated graph or NULL on error
+ */
 graph * graph_init(void (* destory)(void * p_data), int8_t (* compare)(void * p_key1, void * p_key2));
 void graph_destroy(graph * p_graph);
 vertex * graph_ins_vertex(graph * p_graph, void * p_data);
