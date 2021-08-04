@@ -11,7 +11,7 @@ struct list_elem {
 struct list {
     uint16_t size;
     void (* destroy)(void * data);
-    int (* compare)(void * key1, void * key2);
+    int8_t (* compare)(void * key1, void * key2);
     list_elem * p_head;
     list_elem * p_tail;
 };
@@ -20,7 +20,7 @@ struct list {
  * @brief initializes a list
  * @return pointer to a newly malloced list
  */
-list * list_init(void (* destroy)(void * data), int (* compare)(void * key1, void * key2)){
+list * list_init(void (* destroy)(void * data), int8_t (* compare)(void * key1, void * key2)){
     list * p_list_t = calloc(1, sizeof(* p_list_t));
     p_list_t->size = 0;
     p_list_t->destroy = destroy;

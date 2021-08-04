@@ -4,7 +4,7 @@
 typedef struct list_elem list_elem;
 typedef struct list list;
 
-list * list_init(void (* destroy)(void * data), int (* compare)(void * key1, void * key2));
+list * list_init(void (* destroy)(void * data), int8_t (* compare)(void * key1, void * key2));
 void list_destroy(list * p_list_t);
 list_elem * list_ins_next(list * p_list_t, list_elem * p_elem_t, void * p_data);
 int8_t list_rm_next(list * p_list_t, list_elem * p_elem_t);

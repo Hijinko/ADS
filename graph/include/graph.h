@@ -4,7 +4,7 @@
 #include <stdint.h>
 typedef struct graph graph;
 typedef struct list_elem vertex;
-graph * graph_init(void (* destory)(void * p_data), int8_t (* compare)(void * p_key1, void * p_key2));
+graph * graph_init(void (* destroy)(void * p_data), int8_t (* compare)(void * p_key1, void * p_key2));
 void graph_destroy(graph * p_graph);
 vertex * graph_ins_vertex(graph * p_graph, void * p_data);
 int8_t graph_ins_edge(graph * p_grap, vertex * p_vertex1, vertex * p_vertex2);

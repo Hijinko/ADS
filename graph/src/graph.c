@@ -1,6 +1,8 @@
 #include <graph.h>
-#include <stdint.h>
 #include <list.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 /*
  * @brief graph data type structure
@@ -15,7 +17,7 @@ struct graph {
     int64_t ecount;
     void (* destroy)(void * p_data);
     int8_t (* compare)(void * p_key1, void * p_key2);
-    list ** pp_vertices;
+    list * p_vertices;
 };
 
 /*
@@ -24,7 +26,31 @@ struct graph {
  * @param compare user defined compare function for the data in the vertices
  * @return pointer to the newly allocated graph or NULL on error
  */
-graph * graph_init(void (* destory)(void * p_data), int8_t (* compare)(void * p_key1, void * p_key2));
+graph * graph_init(void (* destroy)(void * p_data), int8_t (* compare)(void * p_key1, void * p_key2))
+{
+    // the graph cannot work if there is no compare function
+    if (NULL == compare){
+        return NULL;
+    }
+    // allocate a new graph and assign its values
+    graph * p_graph = calloc(1, sizeof(*p_graph));
+    if (NULL == p_graph){
+        perror("graph_init ");
+        return NULL;
+    }
+    p_graph->vcount = 0;
+    p_graph->ecount = 0;
+    p_graph->destroy = destroy;
+    p_graph->compare = compare;
+    p_graph->p_vertices = list_init(destroy, compare);
+    if (NULL == p_graph->p_vertices){
+        perror("graph_init ");
+        return NULL;
+    }
+    // return the newly allocated graph
+    return p_graph;
+}
+
 void graph_destroy(graph * p_graph);
 vertex * graph_ins_vertex(graph * p_graph, void * p_data);
 int8_t graph_ins_edge(graph * p_grap, vertex * p_vertex1, vertex * p_vertex2);
