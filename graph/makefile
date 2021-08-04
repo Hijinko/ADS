@@ -9,29 +9,29 @@ TSTBIN = ./test/bin/
 TSTINC = ./test/include
 LNK = -lcheck -lm -lpthread -lrt -lsubunit
 
-all: $(BIN)libreplace.a check
+all: $(BIN)libgraph.a check
 
 ################
 # main targets #
 ################
-$(BIN)replace.o: $(SRC)replace.c $(INC)replace.h
+$(BIN)graph.o: $(SRC)graph.c $(INC)graph.h
 	$(CMD) -c $< -o $@
 
 ################
 # test targets #
 ################
-$(TST)check_check: $(TSTBIN)check_check.o $(TSTBIN)libtestreplace.a
+$(TST)check_check: $(TSTBIN)check_check.o $(TSTBIN)libtestgraph.a
 	$(CMD) $^ $(LNK) -o $@
 $(TSTBIN)check_check.o: $(TSTSRC)check_check.c
 	$(CMD) -c $^ -o $@
-$(TSTBIN)test_replace.o: $(TSTSRC)test_replace.c
+$(TSTBIN)test_graph.o: $(TSTSRC)test_graph.c
 	$(CMD) -c $^ -o $@ 
 
 ####################
 # libarary targets #
 ####################
-$(BIN)libreplace.a: $(BIN)libreplace.a($(BIN)replace.o);
-$(TSTBIN)libtestreplace.a: $(TSTBIN)libtestreplace.a($(TSTBIN)test_replace.o $(BIN)replace.o);
+$(BIN)libgraph.a: $(BIN)libgraph.a($(BIN)graph.o);
+$(TSTBIN)libtestgraph.a: $(TSTBIN)libtestgraph.a($(TSTBIN)test_graph.o $(BIN)graph.o);
 clean:
 	find . -type f -iname *.o -exec rm -rf {} \;
 	find . -type f -iname *.a -exec rm -rf {} \;
