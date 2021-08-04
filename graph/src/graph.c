@@ -44,12 +44,14 @@ static vertex * graph_vertex_init(void * p_data, void (* destroy)(void * p_data)
     // create and allocate space for the vertex
     vertex * p_vertex = calloc(1, sizeof(*p_vertex));
     if (NULL == p_vertex){
+        perror("graph_vertex_init ");
         return NULL;
     }
     // set the vertex values
     p_vertex->p_data = p_data;
     p_vertex->p_adjacent = set_init(destroy, compare);
     if (NULL == p_vertex->p_adjacent){
+        perror("graph_vertex_int ");
         return NULL;
     }
     // return the new vertex
@@ -98,6 +100,15 @@ void graph_destroy(graph * p_graph)
         return;
     }
     // free all the allocated data in the vertices and the
+    list_elem * p_elem = list_head(p_graph->p_vertices);
+    for (int64_t index = 0; index < p_graph->vcount; index++){
+        if (NULL != p_elem){
+            vertex * p_vertex = (vertex *)list_data(p_elem);
+            set_destroy(p_vertex->p_adjacent);
+            free(p_vertex);
+            p_elem = list_next(p_elem);
+        }
+    }
     // vertices list
     list_destroy(p_graph->p_vertices);
     free(p_graph);
@@ -116,17 +127,16 @@ vertex * graph_ins_vertex(graph * p_graph, void * p_data)
         return NULL;
     }
     // do not allow insertion of duplicate vertexes
-    if (NULL == list_search(p_graph->p_vertices, p_data)){
+    if (NULL != list_search(p_graph->p_vertices, p_data)){
         return NULL;
     }
     // create the new vertex
     vertex * p_vertex = graph_vertex_init(p_data, p_graph->destroy, p_graph->compare);
     if (NULL == p_vertex){
-        perror("graph_ins_vertex ");
         return NULL;
     }
     // add the new vertex to the graph
-    list_ins_next(p_graph->p_vertices, NULL, p_data);
+    list_ins_next(p_graph->p_vertices, NULL, p_vertex);
     // increase the vertices count in the graph and return the new vertex
     p_graph->vcount++; 
     return p_vertex;

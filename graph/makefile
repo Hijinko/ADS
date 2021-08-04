@@ -9,7 +9,7 @@ TSTBIN = ./test/bin/
 TSTINC = ./test/include
 LNK = -lcheck -lm -lpthread -lrt -lsubunit
 
-all: $(BIN)libgraph.a check
+all: $(BIN)libgraph.a
 
 ################
 # main targets #
@@ -45,6 +45,7 @@ debug: clean all
 profile: CMD += -pg
 profile: debug
 check: CMD += -I $(TSTINC)
+check: debug
 check: $(TST)check_check
-valgrind: debug check
-	valgrind --leak-check=full --show-leak-kinds=all ./test/check_check
+valgrind: check 
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./test/check_check

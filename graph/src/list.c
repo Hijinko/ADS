@@ -194,11 +194,6 @@ list_elem * list_head(list * p_list_t)
     return p_list_t->p_head;
 }
 
-list_elem * list_next(list_elem * p_elem_t)
-{
-    return p_elem_t->p_next;
-}
-
 int list_remove(list * p_list, void * p_data)
 {
     // do not remove from null list or list that is empty;
@@ -231,4 +226,17 @@ int list_remove(list * p_list, void * p_data)
     free(p_old);
     p_list->size--;
     return 0;
+}
+
+
+/*
+ * @brief gets the next element from a list_element
+ * @param p_elem the list element to get the next element from
+ */
+list_elem * list_next(list_elem * p_elem){
+    // cant get the next element from a null element
+    if (NULL == p_elem){
+        return NULL;
+    }
+    return p_elem->p_next;
 }
