@@ -1,8 +1,19 @@
 #include <graph.h>
 #include <list.h>
+#include <set.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+/*
+ * @brief node inside of a graph a.k.a vertex
+ * @param p_data the data that the vertex holds
+ * @param p_adjacent the set of adjacent vertices 
+ */
+struct graph_node {
+    void * p_data;
+    set * p_adjacent;
+};
 
 /*
  * @brief graph data type structure
