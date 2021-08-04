@@ -12,11 +12,11 @@ static int8_t test_compare(void * p_key1, void * p_key2){
 }
 
 heap * p_heap = NULL;
-int num1 = 10;
+int num = 10;
 static void start_heap(void)
 {
     p_heap = heap_init(MAX, NULL, test_compare); 
-    heap_insert(p_heap, &num1);
+    heap_insert(p_heap, &num);
 }
 
 static void teardown_heap(void)
@@ -55,6 +55,24 @@ START_TEST(test_heap_data)
     ck_assert_int_eq(10, *(int *)(heap_data(heap_peek(p_heap))));
 } END_TEST
 
+START_TEST(test_heap_init_null)
+{
+    ck_assert(NULL == heap_init(MIN, NULL, NULL));
+} END_TEST
+
+START_TEST(test_heap_init_min)
+{
+    heap * p_min_heap = heap_init(MIN, NULL, test_compare);
+    int num1 = 10;
+    int num2 = 20;
+    int num3 = 30;
+    heap_insert(p_min_heap, &num1);
+    heap_insert(p_min_heap, &num2);
+    heap_insert(p_min_heap, &num3);
+    ck_assert_int_eq(num1, *(int *)(heap_data(heap_peek(p_min_heap))));
+    heap_destroy(p_min_heap);
+} END_TEST
+
 // create suite
 Suite * suite_heap(void)
 {
@@ -67,6 +85,8 @@ Suite * suite_heap(void)
     tcase_add_test(p_core, test_heap_insert);
     tcase_add_test(p_core, test_heap_peek);
     tcase_add_test(p_core, test_heap_data);
+    tcase_add_test(p_core, test_heap_init_null);
+    tcase_add_test(p_core, test_heap_init_min);
     // add core to suite
     suite_add_tcase(p_suite, p_core);
     return p_suite;
