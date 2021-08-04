@@ -6,8 +6,14 @@
 
 /*
  * @param INITIAL_MEMBERS the initial size of the pp_array
+ * @param TOLERANCE the percentage of use space acceptable for an array
  */
 enum {INITIAL_MEMBERS = 5};
+
+/*
+ * @param TOLERANCE the percentage of use space acceptable for an array
+ */
+static const float TOLERANCE = .80;
 /*
  * @brief the node that is stored in a heap
  * @param p_data pointer to the data in the node
@@ -353,7 +359,14 @@ hnode * heap_insert(heap * p_heap, void * p_data)
     p_heap->pp_array[p_node->index] = p_node;    
     p_heap->size++;
     // reallocate the array if needed
-    // TODO
+    if (((float)p_heap->size / p_heap->node_space) >= TOLERANCE){
+        hnode ** pp_temp = (hnode **)realloc(p_heap->pp_array, (p_heap->size * 2) * sizeof(hnode *));
+        if (NULL == pp_temp){
+            perror("insert realloc ");
+        }
+        p_heap->pp_array = pp_temp;
+        p_heap->node_space = p_heap->size * 2;
+    }
     // if the heap size is not zero then we have to rebalance the heap
     if (1 != p_heap->size){
         heap_bubble_up(p_heap);    
