@@ -2,6 +2,7 @@
 #define _GRAPH_H
 #include <list.h>
 #include <stdint.h>
+typedef enum VertexColor {WHITE, GREY, BLACK} VertexColor;
 typedef struct graph graph;
 typedef struct graph_node vertex;
 graph * graph_init(void (* destroy)(void * p_data), int8_t (* compare)(void * p_key1, void * p_key2));
