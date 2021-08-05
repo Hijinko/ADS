@@ -4,7 +4,7 @@
 #include <list.h>
 typedef list queue;
 int8_t queue_enqueue(queue * p_queue, void * p_data);
-int8_t queue_dequeue(queue * p_queue, void * p_data);
+int8_t queue_dequeue(queue * p_queue);
 void * queue_peek(queue * p_queue);
 #define queue_init list_init
 #define queue_destroy list_destroy
