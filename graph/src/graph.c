@@ -194,7 +194,9 @@ int8_t graph_ins_edge(graph * p_graph, void * p_data1, void * p_data2)
         return -1;
     }
     // create the edge between the vertices  
-    set_insert(p_vertex1->p_adjacent, p_data2);
+    if (NULL == set_insert(p_vertex1->p_adjacent, p_data2)){
+        return -1;
+    }
     // increase edge count in the graph
     p_graph->ecount++;
     return 0;

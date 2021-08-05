@@ -6,17 +6,21 @@
 #include <stdio.h>
 
 static graph * p_graph = NULL;
+static int num1 = 10;
+static int num2 = 20;
 
 static int8_t test_compare(void * key1, void * key2)
 {
-    int num1 = *(int *)key1;
-    int num2 = *(int *)key2;
-    return (num1 < num2) ? -1 : ((num1 == num2) ? 0 : 1);
+    int num_k1 = *(int *)key1;
+    int num_k2 = *(int *)key2;
+    return (num_k1 < num_k2) ? -1 : ((num_k1 == num_k2) ? 0 : 1);
 }
 
 static void start_graph(void)
 {
     p_graph = graph_init(NULL, test_compare);
+    graph_ins_vertex(p_graph, &num1);
+    graph_ins_vertex(p_graph, &num2);
 }
 
 static void teardown_graph(void)
@@ -31,21 +35,35 @@ START_TEST(test_graph_init)
 
 START_TEST(test_graph_ins_vertex)
 {
-    int num1 = 10;
-    int num2 = 20;
     int num3 = 30;
-    int num4 = 30;
-    ck_assert(NULL != graph_ins_vertex(p_graph, &num1));
-    ck_assert(NULL != graph_ins_vertex(p_graph, &num2));
+    int num4 = 40;
+    int num5 = 50;
+    int num6 = 50;
     ck_assert(NULL != graph_ins_vertex(p_graph, &num3));
-    ck_assert(NULL == graph_ins_vertex(p_graph, &num4));
+    ck_assert(NULL != graph_ins_vertex(p_graph, &num4));
+    ck_assert(NULL != graph_ins_vertex(p_graph, &num5));
+    ck_assert(NULL == graph_ins_vertex(p_graph, &num6));
 } END_TEST
 
 START_TEST(test_graph_vcount)
 {
-    int num1 = 10;
-    ck_assert(NULL != graph_ins_vertex(p_graph, &num1));
-    ck_assert_int_eq(1, graph_vcount(p_graph));
+    ck_assert_int_eq(2, graph_vcount(p_graph));
+} END_TEST
+
+START_TEST(test_graph_ins_edge)
+{
+    ck_assert_int_eq(0, graph_ins_edge(p_graph, &num1, &num2));
+} END_TEST
+
+START_TEST(test_graph_ecount)
+{
+    int num3 = 30;
+    graph_ins_vertex(p_graph, &num3);
+    ck_assert_int_eq(0, graph_ins_edge(p_graph, &num1, &num2));
+    ck_assert_int_eq(1, graph_ecount(p_graph));
+    ck_assert_int_eq(0, graph_ins_edge(p_graph, &num1, &num3));
+    ck_assert_int_eq(2, graph_ecount(p_graph));
+    ck_assert_int_eq(-1, graph_ins_edge(p_graph, &num1, &num3));
 } END_TEST
 
 // create suite
@@ -58,6 +76,8 @@ Suite * suite_graph(void)
     tcase_add_test(p_core, test_graph_init);
     tcase_add_test(p_core, test_graph_ins_vertex);
     tcase_add_test(p_core, test_graph_vcount);
+    tcase_add_test(p_core, test_graph_ins_edge);
+    tcase_add_test(p_core, test_graph_ecount);
     // add core to suite
     suite_add_tcase(p_suite, p_core);
     return p_suite;
