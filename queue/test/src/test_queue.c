@@ -8,11 +8,6 @@
 
 static queue * p_queue = NULL;
 
-static void test_free(void * data)
-{
-    free((char *)data); 
-}
-
 static int8_t test_search(void * key1, void * key2)
 {
     int match = strcmp((char *)key1, (char *)key2);
@@ -21,7 +16,7 @@ static int8_t test_search(void * key1, void * key2)
 
 static void start_queue(void)
 {
-    p_queue = queue_init(test_free, test_search); 
+    p_queue = queue_init(NULL, test_search); 
 }
 
 static void teardown_queue(void)
@@ -34,6 +29,14 @@ START_TEST(test_queue_init)
     ck_assert(NULL != p_queue);    
 } END_TEST
 
+START_TEST(test_queue_enqueue)
+{
+    int num1 = 10;
+    int num2 = 20;
+    ck_assert(0 == queue_enqueue(p_queue, &num1));
+    ck_assert(0 == queue_enqueue(p_queue, &num2));
+} END_TEST
+
 // create suite
 Suite * suite_queue(void)
 {
@@ -42,6 +45,7 @@ Suite * suite_queue(void)
     // add test cases 
     tcase_add_checked_fixture(p_core, start_queue, teardown_queue);
     tcase_add_test(p_core, test_queue_init);
+    tcase_add_test(p_core, test_queue_enqueue);
     // add core to suite
     suite_add_tcase(p_suite, p_core);
     return p_suite;
