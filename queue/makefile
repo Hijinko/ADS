@@ -16,6 +16,8 @@ all: $(BIN)libqueue.a check
 ################
 $(BIN)queue.o: $(SRC)queue.c $(INC)queue.h
 	$(CMD) -c $< -o $@
+$(BIN)list.o: $(SRC)list.c $(INC)list.h
+	$(CMD) -c $< -o $@
 
 ################
 # test targets #
@@ -30,8 +32,8 @@ $(TSTBIN)test_queue.o: $(TSTSRC)test_queue.c
 ####################
 # libarary targets #
 ####################
-$(BIN)libqueue.a: $(BIN)libqueue.a($(BIN)queue.o);
-$(TSTBIN)libtestqueue.a: $(TSTBIN)libtestqueue.a($(TSTBIN)test_queue.o $(BIN)queue.o);
+$(BIN)libqueue.a: $(BIN)libqueue.a($(BIN)queue.o $(BIN)list.o);
+$(TSTBIN)libtestqueue.a: $(TSTBIN)libtestqueue.a($(TSTBIN)test_queue.o $(BIN)queue.o $(BIN)list.o);
 clean:
 	find . -type f -iname *.o -exec rm -rf {} \;
 	find . -type f -iname *.a -exec rm -rf {} \;
