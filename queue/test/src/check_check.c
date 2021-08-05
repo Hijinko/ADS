@@ -1,14 +1,14 @@
 #include <check.h>
 #include <stdlib.h>
-#include <test_queu.h>
+#include <test_queue.h>
 
 int main(void)
 {
     int num_failed = 0;
     // create the test suites
-    Suite * p_queu = suite_queu();
+    Suite * p_queue = suite_queue();
     // create and add to suite runner
-    SRunner * p_srunner = srunner_create(p_queu);
+    SRunner * p_srunner = srunner_create(p_queue);
     srunner_set_fork_status(p_srunner, CK_NOFORK);
     // run all test
     srunner_run_all(p_srunner, CK_NORMAL);

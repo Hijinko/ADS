@@ -9,29 +9,29 @@ TSTBIN = ./test/bin/
 TSTINC = ./test/include
 LNK = -lcheck -lm -lpthread -lrt -lsubunit
 
-all: $(BIN)libqueu.a check
+all: $(BIN)libqueue.a check
 
 ################
 # main targets #
 ################
-$(BIN)queu.o: $(SRC)queu.c $(INC)queu.h
+$(BIN)queue.o: $(SRC)queue.c $(INC)queue.h
 	$(CMD) -c $< -o $@
 
 ################
 # test targets #
 ################
-$(TST)check_check: $(TSTBIN)check_check.o $(TSTBIN)libtestqueu.a
+$(TST)check_check: $(TSTBIN)check_check.o $(TSTBIN)libtestqueue.a
 	$(CMD) $^ $(LNK) -o $@
 $(TSTBIN)check_check.o: $(TSTSRC)check_check.c
 	$(CMD) -c $^ -o $@
-$(TSTBIN)test_queu.o: $(TSTSRC)test_queu.c
+$(TSTBIN)test_queue.o: $(TSTSRC)test_queue.c
 	$(CMD) -c $^ -o $@ 
 
 ####################
 # libarary targets #
 ####################
-$(BIN)libqueu.a: $(BIN)libqueu.a($(BIN)queu.o);
-$(TSTBIN)libtestqueu.a: $(TSTBIN)libtestqueu.a($(TSTBIN)test_queu.o $(BIN)queu.o);
+$(BIN)libqueue.a: $(BIN)libqueue.a($(BIN)queue.o);
+$(TSTBIN)libtestqueue.a: $(TSTBIN)libtestqueue.a($(TSTBIN)test_queue.o $(BIN)queue.o);
 clean:
 	find . -type f -iname *.o -exec rm -rf {} \;
 	find . -type f -iname *.a -exec rm -rf {} \;
