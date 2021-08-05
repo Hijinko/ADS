@@ -32,10 +32,36 @@ struct graph {
 };
 
 /*
+ * @brief searches a graph for a vertex value
+ * @param p_graph the graph to search in
+ * @param p_data the vertex data to search for
+ * @return a pointer to the found vertex or NULL if a matching vertex didn't exist
+ */
+static vertex * graph_search(graph * p_graph, void * p_data)
+{
+    // cant search for a value in a null graph or a graph that has no
+    // vertices, also cant search for null data
+    if ((NULL == p_graph) || (0 == p_graph->vcount) || (NULL == p_data)){
+        return NULL;
+    }
+    // search for the value in all the vertexes 
+    list_elem * p_elem = list_head(p_graph->p_vertices);
+    for (; NULL != p_elem; p_elem = list_next(p_elem)){
+        if (0 == p_graph->compare(((vertex *)list_data(p_elem))->p_data, p_data)){
+            // a match was found so return the vertex
+            return (vertex *)list_data(p_elem);
+        }
+    }
+    // no match was found
+    return NULL;
+}
+
+/*
  * @brief creates and initializes a vertex 
  * @param p_data the data that the vertex should have
  */
-static vertex * graph_vertex_init(void * p_data, void (* destroy)(void * p_data), int8_t (* compare)(void * p_key1, void * p_key2))
+static vertex * graph_vertex_init(void * p_data, void (* destroy)(void * p_data),\
+                                  int8_t (* compare)(void * p_key1, void * p_key2))
 {
     // cant create a vertex with null data
     if (NULL == p_data){
@@ -127,7 +153,7 @@ vertex * graph_ins_vertex(graph * p_graph, void * p_data)
         return NULL;
     }
     // do not allow insertion of duplicate vertexes
-    if (NULL != list_search(p_graph->p_vertices, p_data)){
+    if (NULL != graph_search(p_graph, p_data)){
         return NULL;
     }
     // create the new vertex
@@ -142,10 +168,41 @@ vertex * graph_ins_vertex(graph * p_graph, void * p_data)
     return p_vertex;
 }
 
-int8_t graph_ins_edge(graph * p_grap, vertex * p_vertex1, vertex * p_vertex2);
+/*
+ * @brief adds a edge from one vertex to another
+ * @param p_graph the graph to insert the edge into
+ * @param p_data1 the vertex the edge comes from
+ * @param p_data2 the vertex the edge goes into
+ * @return 0 if edge added successfully else -1
+ */
+int8_t graph_ins_edge(graph * p_graph, void * p_data1, void * p_data2)
+{
+    // cant add an edge in an empty or null graph and cant add a edge if
+    // either vertex is null
+    if ((NULL == p_graph) || (0 == p_graph->vcount) || \
+        (NULL == p_data1) || (NULL == p_data2)){
+        return -1;     
+    }
+    // get the vertex for p_data1
+    vertex * p_vertex1 = graph_search(p_graph, p_data1);
+    if (NULL == p_vertex1){
+        return -1;
+    }
+    // get the vertex for p_data2
+    vertex * p_vertex2 = graph_search(p_graph, p_data2);
+    if (NULL == p_vertex2){
+        return -1;
+    }
+    // create the edge between the vertices  
+    set_insert(p_vertex1->p_adjacent, p_data2);
+    // increase edge count in the graph
+    p_graph->ecount++;
+    return 0;
+}
+
 int8_t graph_rm_vertex(graph * p_graph, void * p_data); 
 int8_t graph_rm_edge(graph * p_graph, vertex * p_vertex1, vertex * p_vertex2);
-vertex ** graph_adjlist(graph * p_grap, vertex * p_vertex);
+vertex ** graph_adjlist(graph * p_graph, vertex * p_vertex);
 int8_t graph_is_adjacent(graph * p_graph, vertex * p_vertex1, vertex * p_vertex2);
 
 /*

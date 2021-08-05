@@ -34,9 +34,11 @@ START_TEST(test_graph_ins_vertex)
     int num1 = 10;
     int num2 = 20;
     int num3 = 30;
+    int num4 = 30;
     ck_assert(NULL != graph_ins_vertex(p_graph, &num1));
     ck_assert(NULL != graph_ins_vertex(p_graph, &num2));
     ck_assert(NULL != graph_ins_vertex(p_graph, &num3));
+    ck_assert(NULL == graph_ins_vertex(p_graph, &num4));
 } END_TEST
 
 START_TEST(test_graph_vcount)
