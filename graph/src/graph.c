@@ -202,9 +202,85 @@ int8_t graph_ins_edge(graph * p_graph, void * p_data1, void * p_data2)
     return 0;
 }
 
-int8_t graph_rm_vertex(graph * p_graph, void * p_data); 
-int8_t graph_rm_edge(graph * p_graph, vertex * p_vertex1, vertex * p_vertex2);
-vertex ** graph_adjlist(graph * p_graph, vertex * p_vertex);
+/*
+ * @brief removes a vertex from a graph
+ * @param p_graph the graph to remove the vertex from
+ * @param p_data the data that the vertex to remove contains  
+ * @return 0 if the vertex is successfully removed else -1
+ */
+int8_t graph_rm_vertex(graph * p_graph, void * p_data)
+{
+    // cant remove a node from a null or empty graph and cant remove NULL vertex
+    if ((NULL == p_graph) || (0 == p_graph->vcount) || (NULL == p_data)){
+        return -1;
+    }
+    // find the vertex to remove
+    vertex * p_vertex = graph_search(p_graph, p_data);
+    // cant remove a vertex that doesn't exist in the graph
+    if (NULL == p_vertex){
+        return -1;
+    }
+    // remove the set from the vertex
+    set_destroy(p_vertex->p_adjacent);
+    free(p_vertex);
+    // decrease the graph vertex count
+    p_graph->vcount--;
+    return 0;
+}
+
+/*
+ * @brief removes an edge from a graph
+ * @param p_graph the graph to remove the edge from
+ * @param p_data1 the data in the vertex to remove the edge from
+ * @param p_data2 the data in the vertex to remove the edge to
+ * @return 0 if edge was removed successfully else -1
+ */
+int8_t graph_rm_edge(graph * p_graph, void * p_data1, void * p_data2)
+{
+    // cant search in a NULL graph, a graph with no edges or for NULL vertices
+    if ((NULL == p_graph) || (0 == p_graph->ecount) ||\
+        (NULL == p_data1) || (NULL == p_data2)){
+        return -1;
+    }
+    // get the vertex that contains data1 
+    vertex * p_vertex1 = graph_search(p_graph, p_data1);
+    // if the data is not in the graph then the values aren't adjacent
+    if (NULL == p_vertex1){
+        return -1;
+    }
+    // get the vertex that contains data2 
+    vertex * p_vertex2 = graph_search(p_graph, p_data2);
+    // if the data is not in the graph then the values aren't adjacent
+    if (NULL == p_vertex2){
+        return -1;
+    }
+    // remove the edge from the vertex
+    if (0 == set_remove(p_vertex1->p_adjacent, p_data2)){
+        p_graph->ecount--;
+        return 0; 
+    }
+    return -1;
+}
+
+/*
+ * @brief gets the adjacent vertices of a vertex
+ * @param p_graph the graph the vertex resides in
+ * @param p_data the data the vertex holds to get the adjacent vertices
+ * @return an array of adjacent vertices or NULL if no adjacent
+ *  vertices exist
+ */
+vertex * graph_vertex(graph * p_graph, void * p_data)
+{
+    // cant search in a NULL graph, a graph with no edges or for NULL vertices
+    if ((NULL == p_graph) || (0 == p_graph->ecount) || (NULL == p_data)){
+        return NULL; 
+    }
+    // get the vertex that contains data1 
+    vertex * p_vertex = graph_search(p_graph, p_data);
+    // if the data is not in the graph then p_vertex will be NULL
+    return p_vertex;
+
+}
 
 /*
  * @brief checks if a vertex is adjacent to another vertex in a graph
