@@ -205,7 +205,39 @@ int8_t graph_ins_edge(graph * p_graph, void * p_data1, void * p_data2)
 int8_t graph_rm_vertex(graph * p_graph, void * p_data); 
 int8_t graph_rm_edge(graph * p_graph, vertex * p_vertex1, vertex * p_vertex2);
 vertex ** graph_adjlist(graph * p_graph, vertex * p_vertex);
-int8_t graph_is_adjacent(graph * p_graph, vertex * p_vertex1, vertex * p_vertex2);
+
+/*
+ * @brief checks if a vertex is adjacent to another vertex in a graph
+ * @param p_graph the graph to check in
+ * @param p_data1 the data in the vertex to check adjacency from
+ * @param p_data2 the data in the vertex to check adjacency to
+ * @return 0 if data2 is adjacent to data1 or -1 if they are not adjacent
+ */
+int8_t graph_is_adjacent(graph * p_graph, void * p_data1, void * p_data2)
+{
+    // cant search in a NULL graph, a graph with no edges or for NULL vertices
+    if ((NULL == p_graph) || (0 == p_graph->ecount) ||\
+        (NULL == p_data1) || (NULL == p_data2)){
+        return -1;
+    }
+    // get the vertex that contains data1 
+    vertex * p_vertex1 = graph_search(p_graph, p_data1);
+    // if the data is not in the graph then the values aren't adjacent
+    if (NULL == p_vertex1){
+        return -1;
+    }
+    // get the vertex that contains data2 
+    vertex * p_vertex2 = graph_search(p_graph, p_data2);
+    // if the data is not in the graph then the values aren't adjacent
+    if (NULL == p_vertex2){
+        return -1;
+    }
+    // see if p_data2 is adjacent to the vertex that contains p_data1
+    if (NULL == set_is_member(p_vertex1->p_adjacent, p_data2)){
+        return -1;
+    }
+    return 0;
+}
 
 /*
  * @brief gets the vertices count of the graph 

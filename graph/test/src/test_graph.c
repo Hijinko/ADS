@@ -66,6 +66,14 @@ START_TEST(test_graph_ecount)
     ck_assert_int_eq(-1, graph_ins_edge(p_graph, &num1, &num3));
 } END_TEST
 
+START_TEST(test_graph_is_adjacent)
+{
+    int num3 = 30;
+    ck_assert_int_eq(0, graph_ins_edge(p_graph, &num1, &num2));
+    ck_assert_int_eq(0, graph_is_adjacent(p_graph, &num1, &num2));
+    ck_assert_int_eq(-1, graph_is_adjacent(p_graph, &num1, &num3));
+} END_TEST
+
 // create suite
 Suite * suite_graph(void)
 {
@@ -78,6 +86,7 @@ Suite * suite_graph(void)
     tcase_add_test(p_core, test_graph_vcount);
     tcase_add_test(p_core, test_graph_ins_edge);
     tcase_add_test(p_core, test_graph_ecount);
+    tcase_add_test(p_core, test_graph_is_adjacent);
     // add core to suite
     suite_add_tcase(p_suite, p_core);
     return p_suite;
