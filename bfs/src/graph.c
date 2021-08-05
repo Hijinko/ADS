@@ -21,7 +21,7 @@ struct graph_node {
  * @param ecount the number of edges in the graph
  * @param destroy user defined destroy function for the data in the vertices
  * @param compare user defined compare function for the data in the vertices
- * @param pp_vertices list of vertices in the graph
+ * @param p_vertices list of vertices in the graph
  */
 struct graph {
     int64_t vcount;
@@ -341,4 +341,18 @@ int64_t graph_ecount(graph * p_graph)
         return -1;
     }
     return p_graph->ecount;
+}
+
+/*
+ * @brief get the list of vertices from a graph
+ * @param p_graph the graph to get the list of vertices
+ * @return the list of vertices in a graph or NULL on error
+ */
+list * graph_vertices(graph *p_graph)
+{
+    // cant get the vertices list from a NULL graph
+    if (NULL == p_graph){
+        return NULL; 
+    }   
+    return p_graph->p_vertices;
 }

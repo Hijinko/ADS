@@ -15,4 +15,5 @@ vertex ** graph_adjlist(graph * p_graph, void * p_data);
 int8_t graph_is_adjacent(graph * p_graph, void * p_data1, void * p_data2);
 int64_t graph_vcount(graph * p_graph);
 int64_t graph_ecount(graph * p_graph);
+list * graph_vertices(graph *p_graph);
 #endif
