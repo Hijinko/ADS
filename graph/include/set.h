@@ -1,6 +1,7 @@
 #ifndef _SET_H
 #define _SET_H
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdbool.h>
 #include <list.h>
 typedef struct list members;
@@ -9,7 +10,7 @@ typedef struct set set;
 set * set_init(void (* destroy)(void * p_data), int8_t (* compare)(void * key1, void * key2));
 void set_destroy(set * p_set);
 member * set_insert(set * p_set, void * p_data);
-int set_remove(set * p_set, void * p_data);
+int8_t set_remove(set * p_set, void * p_data);
 set * set_union(set * p_set1, set * p_set2);
 set * set_intersection(set * p_set1, set * p_set2);
 set * set_difference(set * p_set1, set * p_set2);

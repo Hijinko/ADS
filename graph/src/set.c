@@ -63,7 +63,7 @@ member * set_insert(set * p_set, void * p_data)
     return p_member;
 }
 
-int set_remove(set * p_set, void * p_data)
+int8_t set_remove(set * p_set, void * p_data)
 {
     // do not remove from NULL or empty list;
     if ((NULL == p_set) || (0 == p_set->size) || (NULL == p_data)){
