@@ -9,29 +9,33 @@ TSTBIN = ./test/bin/
 TSTINC = ./test/include
 LNK = -lcheck -lm -lpthread -lrt -lsubunit
 
-all: $(BIN)libreplace.a check
+all: $(BIN)libgraph.a
 
 ################
 # main targets #
 ################
-$(BIN)replace.o: $(SRC)replace.c $(INC)replace.h
+$(BIN)graph.o: $(SRC)graph.c $(INC)graph.h
+	$(CMD) -c $< -o $@
+$(BIN)list.o: $(SRC)list.c $(INC)list.h
+	$(CMD) -c $< -o $@
+$(BIN)set.o: $(SRC)set.c $(INC)set.h
 	$(CMD) -c $< -o $@
 
 ################
 # test targets #
 ################
-$(TST)check_check: $(TSTBIN)check_check.o $(TSTBIN)libtestreplace.a
+$(TST)check_check: $(TSTBIN)check_check.o $(TSTBIN)libtestgraph.a
 	$(CMD) $^ $(LNK) -o $@
 $(TSTBIN)check_check.o: $(TSTSRC)check_check.c
 	$(CMD) -c $^ -o $@
-$(TSTBIN)test_replace.o: $(TSTSRC)test_replace.c
+$(TSTBIN)test_graph.o: $(TSTSRC)test_graph.c
 	$(CMD) -c $^ -o $@ 
 
 ####################
 # libarary targets #
 ####################
-$(BIN)libreplace.a: $(BIN)libreplace.a($(BIN)replace.o);
-$(TSTBIN)libtestreplace.a: $(TSTBIN)libtestreplace.a($(TSTBIN)test_replace.o $(BIN)replace.o);
+$(BIN)libgraph.a: $(BIN)libgraph.a($(BIN)graph.o $(BIN)list.o $(BIN)set.o);
+$(TSTBIN)libtestgraph.a: $(TSTBIN)libtestgraph.a($(TSTBIN)test_graph.o $(BIN)graph.o $(BIN)list.o $(BIN)set.o);
 clean:
 	find . -type f -iname *.o -exec rm -rf {} \;
 	find . -type f -iname *.a -exec rm -rf {} \;
@@ -41,6 +45,7 @@ debug: clean all
 profile: CMD += -pg
 profile: debug
 check: CMD += -I $(TSTINC)
+check: debug
 check: $(TST)check_check
-valgrind: debug check
-	valgrind --leak-check=full --show-leak-kinds=all ./test/check_check
+valgrind: check 
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./test/check_check
