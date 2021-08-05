@@ -14,6 +14,7 @@ struct list {
     void (* destroy)(void * data);
     int8_t (* compare)(void * key1, void * key2);
     list_elem * p_head;
+    list_elem * p_tail;
 };
 
 /*
@@ -26,6 +27,7 @@ list * list_init(void (* destroy)(void * data), int8_t (* compare)(void * key1, 
     p_list_t->destroy = destroy;
     p_list_t->compare = compare;
     p_list_t->p_head = NULL;
+    p_list_t->p_tail = NULL;
     return p_list_t;
 }
 
@@ -62,6 +64,7 @@ list_elem * list_ins_next(list * p_list_t, list_elem * p_elem_t, void * p_data)
     // handle empty list
     if (0 == p_list_t->size){
         p_list_t->p_head = p_new_t;
+        p_list_t->p_tail = p_new_t;
     }
     else if (p_elem_t == NULL){
         // handle insert at head
@@ -78,6 +81,10 @@ list_elem * list_ins_next(list * p_list_t, list_elem * p_elem_t, void * p_data)
         p_new_t->p_prev = p_elem_t;
         if (NULL != p_new_t->p_next){
             p_new_t->p_next->p_prev = p_new_t;
+        }
+        // handle a new tail
+        if (p_list_t->p_tail == p_elem_t){
+            p_list_t->p_tail = p_new_t;
         }
     }
     // update size
@@ -113,6 +120,10 @@ int8_t list_rm_next(list * p_list_t, list_elem * p_elem_t)
         if (NULL != p_old->p_next){
             p_old->p_next->p_prev = p_elem_t; 
         }
+    }
+    // check if removing the tail
+    if (p_old == p_list_t->p_tail){
+        p_list_t->p_tail = p_old->p_prev;
     }
     // free any user defined data if a destroy function was specified
     if (NULL != p_list_t->destroy){
@@ -219,6 +230,10 @@ int list_remove(list * p_list, void * p_data)
             p_old->p_next->p_prev = p_old->p_prev;
         }
     }
+    // check if there is a new tail
+    if (p_list->p_tail == p_old){
+        p_list->p_tail = p_old->p_prev;
+    }
     // destroy the list data if user defined destroy exists
     if (NULL != p_list->destroy){
         p_list->destroy(p_old->p_data);
@@ -233,10 +248,21 @@ int list_remove(list * p_list, void * p_data)
  * @brief gets the next element from a list_element
  * @param p_elem the list element to get the next element from
  */
-list_elem * list_next(list_elem * p_elem){
+list_elem * list_next(list_elem * p_elem)
+{
     // cant get the next element from a null element
     if (NULL == p_elem){
         return NULL;
     }
     return p_elem->p_next;
+}
+
+list_elem * list_tail(list * p_list)
+{
+    // cant get the tail from a null list
+    if (NULL == p_list){
+        return NULL;
+    }
+    return p_list->p_tail;
+   
 }
