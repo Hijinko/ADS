@@ -1,23 +1,16 @@
 #include <graph.h>
 #include <list.h>
-#include <queue.h>
 #include <set.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef enum Color {WHITE, GREY, BLACK} Color;
-
 /*
  * @brief node inside of a graph a.k.a vertex
- * @param hops count used for bfs
- * @param color color of the node used for bfs
  * @param p_data the data that the vertex holds
  * @param p_adjacent the set of adjacent vertices 
  */
 struct graph_node {
-    int16_t hops;
-    Color color;
     void * p_data;
     set * p_adjacent;
 };
@@ -44,7 +37,7 @@ struct graph {
  * @param p_data the vertex data to search for
  * @return a pointer to the found vertex or NULL if a matching vertex didn't exist
  */
-vertex * graph_search(graph * p_graph, void * p_data)
+static vertex * graph_search(graph * p_graph, void * p_data)
 {
     // cant search for a value in a null graph or a graph that has no
     // vertices, also cant search for null data
@@ -66,13 +59,12 @@ vertex * graph_search(graph * p_graph, void * p_data)
 /*
  * @brief creates and initializes a vertex 
  * @param p_data the data that the vertex should have
- * @return a pointer to newly created vertex or NULL on error
  */
-static vertex * graph_vertex_init(void * p_data, int8_t (* compare)(void * p_key1, void * p_key2))
+static vertex * graph_vertex_init(void * p_data, void (* destroy)(void * p_data),\
+                                  int8_t (* compare)(void * p_key1, void * p_key2))
 {
     // cant create a vertex with null data
     if (NULL == p_data){
-        perror("graph_vertex_init NULL ");
         return NULL;
     }
     // create and allocate space for the vertex
@@ -82,10 +74,8 @@ static vertex * graph_vertex_init(void * p_data, int8_t (* compare)(void * p_key
         return NULL;
     }
     // set the vertex values
-    p_vertex->hops = -1;
-    p_vertex->color = WHITE;
     p_vertex->p_data = p_data;
-    p_vertex->p_adjacent = set_init(NULL, compare);
+    p_vertex->p_adjacent = set_init(destroy, compare);
     if (NULL == p_vertex->p_adjacent){
         perror("graph_vertex_int ");
         return NULL;
@@ -116,7 +106,7 @@ graph * graph_init(void (* destroy)(void * p_data), int8_t (* compare)(void * p_
     p_graph->ecount = 0;
     p_graph->destroy = destroy;
     p_graph->compare = compare;
-    p_graph->p_vertices = list_init(NULL, compare);
+    p_graph->p_vertices = list_init(destroy, compare);
     if (NULL == p_graph->p_vertices){
         perror("graph_init ");
         return NULL;
@@ -141,9 +131,6 @@ void graph_destroy(graph * p_graph)
         if (NULL != p_elem){
             vertex * p_vertex = (vertex *)list_data(p_elem);
             set_destroy(p_vertex->p_adjacent);
-            if ((NULL != p_graph->destroy) && (NULL != p_vertex->p_data)){
-                p_graph->destroy(p_vertex->p_data);   
-            }
             free(p_vertex);
             p_elem = list_next(p_elem);
         }
@@ -170,7 +157,7 @@ vertex * graph_ins_vertex(graph * p_graph, void * p_data)
         return NULL;
     }
     // create the new vertex
-    vertex * p_vertex = graph_vertex_init(p_data, p_graph->compare);
+    vertex * p_vertex = graph_vertex_init(p_data, p_graph->destroy, p_graph->compare);
     if (NULL == p_vertex){
         return NULL;
     }
@@ -202,7 +189,8 @@ int8_t graph_ins_edge(graph * p_graph, void * p_data1, void * p_data2)
         return -1;
     }
     // get the vertex for p_data2
-    if (NULL == graph_search(p_graph, p_data2)){
+    vertex * p_vertex2 = graph_search(p_graph, p_data2);
+    if (NULL == p_vertex2){
         return -1;
     }
     // create the edge between the vertices  
@@ -212,27 +200,6 @@ int8_t graph_ins_edge(graph * p_graph, void * p_data1, void * p_data2)
     // increase edge count in the graph
     p_graph->ecount++;
     return 0;
-}
-
-/*
- * @brief adds a undirected edge from one vertex to another
- * @param p_graph the graph to insert the edge into
- * @param p_data1 the first vertex the edge connects
- * @param p_data2 the second vertex the edge connects
- * @return 0 if edge added successfully else -1
- */
-int8_t graph_ins_undirected_edge(graph * p_graph, void * p_data1, void * p_data2)
-{
-    int8_t first_edge = 0;
-    int8_t second_edge = 0;
-    first_edge = graph_ins_edge(p_graph, p_data1, p_data2);
-    second_edge = graph_ins_edge(p_graph, p_data2, p_data1);
-    // if either edge is 0 then successful edge was added
-    // if both edge is -1 then undirected edge was not added successfully
-    if ((-1 == first_edge) && (-1 == second_edge)){
-        return -1;
-    }
-    return 0; 
 }
 
 /*
@@ -389,163 +356,3 @@ list * graph_vertices(graph *p_graph)
     }   
     return p_graph->p_vertices;
 }
-
-/*
- * @brief gets the data in a graph vertex
- * @param p_vertex the vertex to get the data from
- * @return pointer to the data in the vertex or NULL on error
- */
-void * graph_data(vertex * p_vertex)
-{
-    // cant get the data from a NULL vertex
-    if (NULL == p_vertex){
-        return NULL;
-    }
-    return p_vertex->p_data;
-}
-
-/*
- * @brief prints all the vertices data in a graph
- */
-void graph_print(graph * p_graph)
-{
-    list_elem * p_elem = NULL;
-    for (p_elem = list_head(p_graph->p_vertices); p_elem != NULL; p_elem = list_next(p_elem)){
-        printf("%s\n", (char *)((vertex *)list_data(p_elem))->p_data);
-    }
-}
-
-/*
- * @brief perform a breadth first search on a graph
- * @param p_graph the graph to perform the search on
- * @param p_start the data for the starting vertex
- * @param p_end the data for the end vertex
- * @return a list with the shortest path from start to end or NULL
- *  on error or if there is no path form start to end
- */
-list * graph_bfs(graph * p_graph, void * p_start, void * p_end)
-{
-    // cant do a bfs in a NULL or empty graph or from NULL data
-    if ((NULL == p_graph) || (0 == p_graph->vcount) || (NULL == p_start) || (NULL == p_end)){
-        return NULL;
-    }
-    // create a queue to hold the found vertexes
-    queue * p_queue = queue_init(NULL, NULL);
-    if (NULL == p_queue){
-        return NULL;
-    }
-    // get the starting vertex and setup the queue
-    vertex * p_svertex = graph_search(p_graph, p_start);
-    if (NULL == p_svertex){
-        return NULL;
-    }
-    // get the ending vertex
-    vertex * p_evertex = graph_search(p_graph, p_end);
-    if (NULL == p_evertex){
-        return NULL;
-    }
-    // the starting vertex color changes to grey and hops to 0
-    p_svertex->hops = 0;
-    p_svertex->color = GREY;
-    // add the starting vertex to the queue
-    queue_enqueue(p_queue, p_svertex);
-    vertex * p_vertex = NULL;
-    vertex * p_adj_vertex = NULL;
-    list_elem * p_elem = NULL;
-    // while the queue is not empty conduct search
-    while (queue_size(p_queue)){
-        // for each element in the queue visit adjacent vertices 
-        p_vertex = queue_peek(p_queue);
-        for (p_elem = set_head(p_vertex->p_adjacent);\
-             p_elem != NULL; p_elem = list_next(p_elem)){
-             p_adj_vertex = graph_search(p_graph, (char *)list_data(p_elem));
-             // check the color of the adjacent vertex
-             if (WHITE == p_adj_vertex->color){
-                p_adj_vertex->color = GREY;
-                p_adj_vertex->hops = p_vertex->hops + 1;
-                // enqueue the adjacent vertex
-                queue_enqueue(p_queue, p_adj_vertex);
-             }
-        }
-        // color the vertex at the front of the queue black and dequeue the vertex
-        p_vertex->color = BLACK;
-        queue_dequeue(p_queue);
-    }
-    // destroy the queue
-    queue_destroy(p_queue);
-    // pass back all the vertex hop count in a list
-    list * p_hops = list_init(NULL, p_graph->compare);
-    for (p_elem = list_head(p_graph->p_vertices); NULL != p_elem; p_elem = list_next(p_elem)){
-        p_vertex = (vertex *)list_data(p_elem);
-        if (-1 != p_vertex->hops){
-            list_ins_next(p_hops, list_tail(p_hops), p_vertex);
-        }
-    }
-    return p_hops;
-}
-
-int16_t graph_hops(vertex * p_vertex)
-{
-    return p_vertex->hops;
-}
-
-// gets the shortes path but has memory leaks
-list * graph_path(graph * p_graph, vertex * p_start, vertex * p_end)
-{
-    // initialize all the colors
-    list_elem * p_temp_elem = list_head(p_graph->p_vertices);
-    for (; NULL != p_temp_elem; p_temp_elem = list_next(p_temp_elem)){
-        vertex * p_temp_vertex = list_data(p_temp_elem); 
-        p_temp_vertex->color = WHITE;
-    }
-    // create a path that is a list of vectors
-    list * p_path = list_init(p_graph->destroy, p_graph->compare);
-    list_ins_next(p_path, list_tail(p_path), p_start);
-    p_start->color = GREY;
-    // queue will store paths
-    queue * p_queue = queue_init(NULL, NULL);
-    // add the first list to the queue
-    queue_enqueue(p_queue, p_path); 
-    // until the queue is empty continue to add to path 
-    while (0 != queue_size(p_queue)){
-        // get the path from the front of the queue
-        list * p_cur_path = queue_peek(p_queue);   
-        // check if last node of the current path is the destination
-        vertex * p_cur_vertex = list_data(list_tail(p_cur_path));
-        if (p_cur_vertex == p_end){
-            queue_destroy(p_queue);
-            return p_cur_path;
-        }
-        else {
-            // for each adjacent vertex in the current vertex
-            // if the adjacent vertex is not in the current path
-            // copy previous path append adjacent vertex and add to queue
-            list_elem * p_adj_elem = NULL;
-            vertex * p_adj_vertex = NULL;
-            for (p_adj_elem = set_head(p_cur_vertex->p_adjacent); NULL != p_adj_elem; \
-                                                 p_adj_elem = list_next(p_adj_elem)){
-                p_adj_vertex = graph_search(p_graph, (char *)list_data(p_adj_elem));
-                if ((NULL == list_search(p_cur_path, p_adj_vertex))){
-                    if (WHITE == p_adj_vertex->color){
-                        p_adj_vertex->color = GREY;
-                        // create new path
-                        list * p_new_path = list_init(NULL, p_graph->compare); 
-                        // copy old path
-                        list_elem * p_elem = list_head(p_cur_path);
-                        for (;NULL != p_elem; p_elem = list_next(p_elem)){
-                            list_ins_next(p_new_path, list_tail(p_new_path), list_data(p_elem));
-                        }
-                        // append adj_vertex to the new path
-                        list_ins_next(p_new_path, list_tail(p_new_path), p_adj_vertex);
-                        // insert the new path into the queue
-                        queue_enqueue(p_queue, p_new_path);
-                    }
-                }
-            }
-            p_cur_vertex->color = BLACK;
-            queue_dequeue(p_queue);
-        }
-    }
-    return NULL;
-}
-
